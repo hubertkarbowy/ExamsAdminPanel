@@ -86,7 +86,7 @@ public class ExamsAdmin {
 		lblExamsAdmin.setBounds(12, 12, 416, 15);
 		frmExamsOnline.getContentPane().add(lblExamsAdmin);
 		
-		lblExamsServer = new JLabel("Exams sserver:");
+		lblExamsServer = new JLabel("Exams 2server:");
 		lblExamsServer.setBounds(30, 67, 117, 15);
 		frmExamsOnline.getContentPane().add(lblExamsServer);
 		
