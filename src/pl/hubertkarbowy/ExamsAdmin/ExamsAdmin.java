@@ -1,6 +1,7 @@
 package pl.hubertkarbowy.ExamsAdmin;
 
 // import java.awt.EventQueue;
+// komentarz dodany 
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
