@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
 
 class ExamsGlobalSettings {
 	
-	protected static final int PORTNO=55111;
+	protected static final int PORTNO=55110;
 	private static String uid;
 	private static char[] pw = null;
 	

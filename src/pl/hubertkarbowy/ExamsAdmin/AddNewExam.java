@@ -27,6 +27,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
 import java.awt.Window.Type;
 import java.awt.Dialog.ModalityType;
+import javax.swing.JComboBox;
 
 public class AddNewExam extends JDialog {
 
@@ -39,7 +40,7 @@ public class AddNewExam extends JDialog {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
+	/* public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -50,7 +51,7 @@ public class AddNewExam extends JDialog {
 				}
 			}
 		});
-	}
+	}*/
 
 	/**
 	 * Create the frame.
@@ -67,7 +68,7 @@ public class AddNewExam extends JDialog {
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setTitle("New exam");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 763, 400);
+		setBounds(100, 100, 763, 456);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -75,7 +76,7 @@ public class AddNewExam extends JDialog {
 		
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
-		panel.setBounds(40, 63, 686, 242);
+		panel.setBounds(50, 63, 686, 292);
 		contentPane.add(panel);
 		
 		JLabel label = new JLabel("Exam code:");
@@ -109,12 +110,12 @@ public class AddNewExam extends JDialog {
 		
 		JLabel label_3 = new JLabel("Exam description:");
 		label_3.setHorizontalAlignment(SwingConstants.RIGHT);
-		label_3.setBounds(26, 117, 140, 15);
+		label_3.setBounds(26, 145, 140, 15);
 		panel.add(label_3);
 		
 		JLabel label_4 = new JLabel("Exam scope:");
 		label_4.setHorizontalAlignment(SwingConstants.RIGHT);
-		label_4.setBounds(26, 191, 140, 15);
+		label_4.setBounds(26, 220, 140, 15);
 		panel.add(label_4);
 		
 		JTextArea ExamScope = new JTextArea();
@@ -127,12 +128,21 @@ public class AddNewExam extends JDialog {
 		ExamDesc.setBounds(171, 87, 503, 75);
 		
 		spDesc = new JScrollPane(ExamDesc);
-		spDesc.setBounds(171, 86, 503, 76);
+		spDesc.setBounds(171, 116, 503, 76);
 		panel.add(spDesc);
 		
 		JScrollPane spScope = new JScrollPane(ExamScope);
-		spScope.setBounds(171, 174, 503, 56);
+		spScope.setBounds(171, 204, 503, 56);
 		panel.add(spScope);
+		
+		JComboBox testbankselector = new JComboBox();
+		testbankselector.setBounds(171, 85, 503, 19);
+		panel.add(testbankselector);
+		
+		JLabel label_5 = new JLabel("Testbank:");
+		label_5.setHorizontalAlignment(SwingConstants.RIGHT);
+		label_5.setBounds(57, 86, 109, 15);
+		panel.add(label_5);
 		
 		
 	//	scrollPane.add(ExamDesc);
@@ -143,7 +153,7 @@ public class AddNewExam extends JDialog {
 		contentPane.add(lblPlease);
 		
 		JButton btnSubmit = new JButton("Submit");
-		btnSubmit.setBounds(40, 317, 117, 25);
+		btnSubmit.setBounds(40, 367, 117, 25);
 		contentPane.add(btnSubmit);
 		
 		JButton btnCancel = new JButton("Cancel");
@@ -152,7 +162,7 @@ public class AddNewExam extends JDialog {
 				dispose();
 			}
 		});
-		btnCancel.setBounds(609, 317, 117, 25);
+		btnCancel.setBounds(609, 367, 117, 25);
 		contentPane.add(btnCancel);
 	}
 }
