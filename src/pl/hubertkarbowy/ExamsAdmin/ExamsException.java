@@ -1,6 +1,6 @@
 package pl.hubertkarbowy.ExamsAdmin;
 
-class ExamsException extends Exception {
+class ExamsException extends RuntimeException {
 
 	public ExamsException() {
 		super();

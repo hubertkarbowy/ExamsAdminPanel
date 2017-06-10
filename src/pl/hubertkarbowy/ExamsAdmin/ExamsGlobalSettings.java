@@ -140,4 +140,14 @@ class ExamsGlobalSettings {
 		}
 		return response;
 	}
+	
+	protected static void showMsg(String msg)
+	{
+		JOptionPane.showMessageDialog(frmExamsOnline, msg);
+	}
+	
+	protected static String getUid()
+	{
+		return uid;
+	}
 }

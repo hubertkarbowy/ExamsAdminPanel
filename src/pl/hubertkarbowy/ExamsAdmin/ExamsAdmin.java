@@ -68,12 +68,12 @@ public class ExamsAdmin {
 	private void initialize() throws Exception {
 		frmExamsOnline = new JFrame();
 		
-	/*	Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 	        @Override
 	        public void uncaughtException(Thread t, Throwable e) {
-	        	JOptionPane.showMessageDialog(frmExamsOnline, "Cos sie stalo niedobrego...");
+	        	JOptionPane.showMessageDialog(frmExamsOnline, "Error: " + e.getMessage());
 	        }
-	    });*/
+	    });
 		
 		frmExamsOnline.setTitle("Exams Online - Admin / Examiner panel");
 		frmExamsOnline.setBounds(100, 100, 450, 300);
@@ -92,7 +92,7 @@ public class ExamsAdmin {
 		frmExamsOnline.getContentPane().add(lblExamsServer);
 		
 		txtServer = new JTextField();
-		txtServer.setText("192.168.1.7");
+		txtServer.setText("127.0.0.1");
 		txtServer.setBounds(149, 65, 114, 19);
 		frmExamsOnline.getContentPane().add(txtServer);
 		txtServer.setColumns(10);

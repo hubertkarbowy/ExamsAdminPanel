@@ -67,4 +67,9 @@ final class StringUtilityMethods {
 		return vals2;
 	}
 	
+	static String formatErrorNicely(String serverResponse)
+	{
+		return serverResponse;
+	}
+	
 }

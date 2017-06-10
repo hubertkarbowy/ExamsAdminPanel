@@ -81,24 +81,17 @@ public class ExamsSchedulerPanel extends JDialog {
 		upperPanel.setBounds(5, 5, 686, 155);
 		contentPane.add(upperPanel);
 		
-		
-		JButton btnNewExam = new JButton("New exam");
-		btnNewExam.setHorizontalAlignment(SwingConstants.RIGHT);
-		btnNewExam.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JDialog newExam = new AddNewExam();
-				prevWindowQueue.peek().setVisible(false);
-				newExam.setVisible(true);
-			}
-		});
-		btnNewExam.setBounds(557, 56, 117, 25);
-		
 		JPanel bottomPanel = new JPanel();
 		bottomPanel.setBounds(5, 472, 686, 47);
 		contentPane.add(bottomPanel);
 		bottomPanel.setLayout(null);
 		
 		JButton btnApplyChanges = new JButton("Apply changes");
+		btnApplyChanges.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0){
+				applyChanges();
+			}
+		});
 		btnApplyChanges.setBounds(62, 12, 137, 25);
 		bottomPanel.add(btnApplyChanges);
 		
@@ -122,6 +115,7 @@ public class ExamsSchedulerPanel extends JDialog {
 		panel.add(label);
 		
 		excode = new JTextField();
+		excode.setEnabled(false);
 		excode.setColumns(10);
 		excode.setBounds(171, 12, 503, 19);
 		panel.add(excode);
@@ -178,15 +172,56 @@ public class ExamsSchedulerPanel extends JDialog {
 		
 		// ----------------------  DB access code -------------------------- //
 		
+		populateEntries();
 		
+		
+		upperPanel.setLayout(new BoxLayout(upperPanel, BoxLayout.X_AXIS));
+		spTable = new JScrollPane(table);
+		upperPanel.add(spTable);
+		
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		panel_1.setAlignmentY(Component.TOP_ALIGNMENT);
+		upperPanel.add(panel_1);
+		panel_1.setLayout(new BoxLayout(panel_1, BoxLayout.PAGE_AXIS));
+		
+		
+		JButton btnNewExam = new JButton("New exam");
+		panel_1.add(btnNewExam);
+		btnNewExam.setHorizontalAlignment(SwingConstants.RIGHT);
+		btnNewExam.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JDialog newExam = new AddNewExam();
+				prevWindowQueue.peek().setVisible(false);
+				newExam.setVisible(true);
+			}
+		});
+		btnNewExam.setBounds(557, 56, 117, 25);
+		
+		JButton btnRemoveExam = new JButton("Remove exam");
+		panel_1.add(btnRemoveExam);
+		btnRemoveExam.setHorizontalAlignment(SwingConstants.RIGHT);
+		upperPanel.setVisible(true);
+		
+		upperPanel.revalidate();
+		upperPanel.repaint();
+	}
+	
+	private void populateEntries()
+	{
 		allExamCodes=sendAndReceive("exam query *");
 		if (!allExamCodes.startsWith("ERR=NO_RECORDS_FOUND")) {
 			if (!allExamCodes.startsWith("OK=")) throw new ExamsException("Unable to retrieve the list of your exams.");
 			allExamCodesAsList=tokenize(allExamCodes, semicolon);
+			tableContent.clear();
+			completeContent.clear();
 			for (String singleExam : allExamCodesAsList) {
 				String response = sendAndReceive("exam get \""+singleExam+"\"");
 				if (!response.startsWith("OK=")) throw new ExamsException("Invalid exam format.");
+				
 				tableContent.add(tokenize(response, pipe));
+				
 				completeContent.add(tokenize(response, pipe));
 			}
 			parseExamsv2(new String[]{"Code", "Name"}, tableContent);
@@ -196,13 +231,12 @@ public class ExamsSchedulerPanel extends JDialog {
 			allTestbanksAsList = allTestbanks.getTestbanks();
 			Collections.sort(allTestbanksAsList);
 			
+			testbankSelector.removeAllItems();
 			testbankSelector.addItem("");
 			for (Testbank tbId : allTestbanksAsList) // ugly... but no time for developing a ComboBoxModel...
 			{
 				testbankSelector.addItem(tbId.getName());
 			}
-			
-			
 			
 		}
 		else
@@ -215,18 +249,6 @@ public class ExamsSchedulerPanel extends JDialog {
 			};
 			table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 		}
-		
-		
-		
-		upperPanel.setLayout(new BoxLayout(upperPanel, BoxLayout.X_AXIS));
-		spTable = new JScrollPane(table);
-		upperPanel.add(spTable);
-		
-		upperPanel.add(btnNewExam);
-		upperPanel.setVisible(true);
-		
-		upperPanel.revalidate();
-		upperPanel.repaint();
 	}
 	
 	private void parseExamsv2(String[] columns, List<List<String>> columnsContent)
@@ -239,10 +261,11 @@ public class ExamsSchedulerPanel extends JDialog {
 
 		Object[][] vals2=createTableModel(columnsContent);
 		System.out.println("Size :" + vals2[0][1]);
-		table = new JTable(vals2, columns){
+		table = new JTable(vals2, columns) {
 			@Override
 			public boolean isCellEditable(int row, int col)
 	        { return false; }
+			
 		};
 		table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 		table.addMouseListener(new MouseAdapter() {
@@ -270,7 +293,7 @@ public class ExamsSchedulerPanel extends JDialog {
 				System.out.println(singleList);
 				excode.setText(singleList.get(0));
 				exname.setText(singleList.get(2));
-				exdesc.setText(singleList.get(2));
+				exdesc.setText(singleList.get(3));
 				exscope.setText(singleList.get(5));
 				coursename.setText(singleList.get(3));
 				// testbankSelector.setSelectedIndex(anIndex);
@@ -284,5 +307,35 @@ public class ExamsSchedulerPanel extends JDialog {
 				break;
 			}
 		}
+	}
+	
+	private void applyChanges() throws ExamsException
+	{
+		if (excode.getText().equals("")) throw new ExamsException("No exam selected");
+		
+		StringBuilder sb = new StringBuilder();
+		String serverResponse = "";
+		sb.append("exam modify ");
+		sb.append(excode.getText());
+		sb.append(" {" + excode.getText() + "|");
+		for (Testbank tbId : allTestbanksAsList) // ugly ugly ugly...
+		{
+			if (testbankSelector.getSelectedItem().toString().equals(tbId.getName()))
+			{
+				sb.append(tbId.getId() + "|");
+				break;
+			}
+		}
+		sb.append(exname.getText() + "|");
+		sb.append(coursename.getText() + "|");
+		sb.append(exdesc.getText() + "|");
+		sb.append(exscope.getText() + "}");
+		// sb.append(getUid() + "|");
+		System.out.println(sb.toString());
+		serverResponse = sendAndReceive(sb.toString());
+		if (!serverResponse.equals("OK")) throw new ExamsException(formatErrorNicely(serverResponse));
+		else showMsg("Changes saved on server. @TODO: Autorefresh.");
+		
+		
 	}
 }
