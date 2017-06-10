@@ -1,6 +1,9 @@
 package pl.hubertkarbowy.ExamsAdmin;
 
 import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.prevWindowQueue;
+import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.sendAndReceive;
+import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.showMsg;
+import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.formatErrorNicely;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -15,6 +18,10 @@ import java.awt.Dialog.ModalExclusionType;
 import javax.swing.JTextArea;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.LineBorder;
+
+import pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.Delimiter;
+import pl.hubertkarbowy.ExamsAdmin.Testbanks.Testbank;
+
 import java.awt.Color;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -24,6 +31,9 @@ import javax.swing.JDialog;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.Window.Type;
 import java.awt.Dialog.ModalityType;
@@ -32,26 +42,22 @@ import javax.swing.JComboBox;
 public class AddNewExam extends JDialog {
 
 	private JPanel contentPane;
-	private JTextField textField;
-	private JTextField textField_1;
-	private JTextField textField_2;
+	private JTextField exname;
+	private JTextField coursename;
 	private JScrollPane spDesc;
-
-	/**
-	 * Launch the application.
-	 */
-	/* public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					AddNewExam frame = new AddNewExam();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}*/
+	private JComboBox testbankSelector;
+	private JTextArea examdesc;
+	private JTextArea examscope;
+	
+	private String allExamCodes;
+	private List<String> allExamCodesAsList = new ArrayList<>();
+	private List<List<String>> completeContent = new ArrayList<>();
+	private Testbanks allTestbanks;
+	private List<Testbank> allTestbanksAsList = new ArrayList<>();
+	
+	private Delimiter semicolon = Delimiter.SEMICOLON;
+	private Delimiter pipe = Delimiter.PIPE;
+	private JTextField excode;
 
 	/**
 	 * Create the frame.
@@ -63,7 +69,6 @@ public class AddNewExam extends JDialog {
 				prevWindowQueue.peek().setVisible(true);;
 			}
 		});*/
-		setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		setModal(true);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setTitle("New exam");
@@ -83,15 +88,15 @@ public class AddNewExam extends JDialog {
 		label.setBounds(87, 14, 79, 15);
 		panel.add(label);
 		
-		textField = new JTextField();
-		textField.setColumns(10);
-		textField.setBounds(171, 12, 503, 19);
-		panel.add(textField);
+		excode = new JTextField();
+		excode.setColumns(10);
+		excode.setBounds(171, 12, 503, 19);
+		panel.add(excode);
 		
-		textField_1 = new JTextField();
-		textField_1.setColumns(10);
-		textField_1.setBounds(171, 35, 503, 19);
-		panel.add(textField_1);
+		exname = new JTextField();
+		exname.setColumns(10);
+		exname.setBounds(171, 35, 503, 19);
+		panel.add(exname);
 		
 		JLabel label_1 = new JLabel("Exam name:");
 		label_1.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -103,10 +108,10 @@ public class AddNewExam extends JDialog {
 		label_2.setBounds(57, 59, 109, 15);
 		panel.add(label_2);
 		
-		textField_2 = new JTextField();
-		textField_2.setColumns(10);
-		textField_2.setBounds(171, 57, 503, 19);
-		panel.add(textField_2);
+		coursename = new JTextField();
+		coursename.setColumns(10);
+		coursename.setBounds(171, 57, 503, 19);
+		panel.add(coursename);
 		
 		JLabel label_3 = new JLabel("Exam description:");
 		label_3.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -118,26 +123,38 @@ public class AddNewExam extends JDialog {
 		label_4.setBounds(26, 220, 140, 15);
 		panel.add(label_4);
 		
-		JTextArea ExamScope = new JTextArea();
-		ExamScope.setBorder(null);
-		ExamScope.setBounds(171, 174, 503, 56);
+		examscope = new JTextArea();
+		examscope.setBorder(null);
+		examscope.setBounds(171, 174, 503, 56);
 		// panel.add(ExamScope);
 		
-		JTextArea ExamDesc = new JTextArea();
-		ExamDesc.setBorder(null);
-		ExamDesc.setBounds(171, 87, 503, 75);
+		examdesc = new JTextArea();
+		examdesc.setBorder(null);
+		examdesc.setBounds(171, 87, 503, 75);
 		
-		spDesc = new JScrollPane(ExamDesc);
+		spDesc = new JScrollPane(examdesc);
 		spDesc.setBounds(171, 116, 503, 76);
 		panel.add(spDesc);
 		
-		JScrollPane spScope = new JScrollPane(ExamScope);
+		JScrollPane spScope = new JScrollPane(examscope);
 		spScope.setBounds(171, 204, 503, 56);
 		panel.add(spScope);
 		
-		JComboBox testbankselector = new JComboBox();
-		testbankselector.setBounds(171, 85, 503, 19);
-		panel.add(testbankselector);
+		testbankSelector = new JComboBox();
+		testbankSelector.setBounds(171, 85, 503, 19);
+		panel.add(testbankSelector);
+		
+		allTestbanks = new Testbanks();
+		allTestbanks.populate();
+		allTestbanksAsList = allTestbanks.getTestbanks();
+		Collections.sort(allTestbanksAsList);
+		
+		testbankSelector.removeAllItems();
+		testbankSelector.addItem("");
+		for (Testbank tbId : allTestbanksAsList) // ugly... but no time for developing a ComboBoxModel...
+		{
+			testbankSelector.addItem(tbId.getName());
+		}
 		
 		JLabel label_5 = new JLabel("Testbank:");
 		label_5.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -153,6 +170,11 @@ public class AddNewExam extends JDialog {
 		contentPane.add(lblPlease);
 		
 		JButton btnSubmit = new JButton("Submit");
+		btnSubmit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dbAddNewExam();
+			}
+		});
 		btnSubmit.setBounds(40, 367, 117, 25);
 		contentPane.add(btnSubmit);
 		
@@ -165,4 +187,37 @@ public class AddNewExam extends JDialog {
 		btnCancel.setBounds(609, 367, 117, 25);
 		contentPane.add(btnCancel);
 	}
+	
+	private void dbAddNewExam()
+	{
+		String serverResponse = "";
+		StringBuilder sb = new StringBuilder();
+		
+		if (excode.getText().equals("")) throw new ExamsException("Please provide exam code.");
+		if (exname.getText().equals("")) throw new ExamsException("Please provide exam name.");
+		if (testbankSelector.getSelectedItem().toString().equals("")) throw new ExamsException("Please select a testbank.");
+		
+		sb.append("exam new {");
+		sb.append(excode.getText() + "|");
+		for (Testbank tbId : allTestbanksAsList) // ugly ugly ugly...
+		{
+			if (testbankSelector.getSelectedItem().toString().equals(tbId.getName()))
+			{
+				sb.append(tbId.getId() + "|");
+				break;
+			}
+		}
+		sb.append(exname.getText() + "|");
+		sb.append(coursename.getText() + "|");
+		sb.append(examdesc.getText() + "|");
+		sb.append(examscope.getText() + "}");
+		System.out.println(sb.toString());
+		
+		serverResponse = sendAndReceive(sb.toString());
+		if (!serverResponse.startsWith("OK")) throw new ExamsException(formatErrorNicely(serverResponse));
+		else showMsg("New exam added. @TODO: Autorefresh.");
+		this.dispose();
+	}
+	
+	
 }

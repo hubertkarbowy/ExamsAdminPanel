@@ -79,7 +79,7 @@ class MainPanel extends JDialog {
 		btnManageExams.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					spanel = new ExamsSchedulerPanel();
+					spanel = new ExamsManagerPanel();
 				}
 				catch (ExamsException e2)
 				{
@@ -88,6 +88,7 @@ class MainPanel extends JDialog {
 				if (spanel != null) {
 				prevWindowQueue.peek().setVisible(false);
 				prevWindowQueue.offer(spanel);
+				spanel.setLocationRelativeTo(null);
 				spanel.setVisible(true);
 				}
 			}
@@ -104,6 +105,16 @@ class MainPanel extends JDialog {
 		ExaminerMenu.add(btnSubmissions);
 		
 		JButton btnManageTestbanks = new JButton("Manage testbanks");
+		btnManageTestbanks.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				spanel = new TestbanksManager();
+				if (spanel == null) throw new ExamsException("Hmm...");
+				prevWindowQueue.peek().setVisible(false);
+				prevWindowQueue.offer(spanel);
+				spanel.setLocationRelativeTo(null);
+				spanel.setVisible(true);
+			}
+		});
 		btnManageTestbanks.setMnemonic('t');
 		btnManageTestbanks.setIcon(new ImageIcon(MainPanel.class.getResource("/javax/swing/plaf/metal/icons/ocean/hardDrive.gif")));
 		btnManageTestbanks.setBounds(22, 198, 269, 53);

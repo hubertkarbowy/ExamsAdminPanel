@@ -19,10 +19,11 @@ import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.*;
 
 
 
-public class ExamsSchedulerPanel extends JDialog {
+public class ExamsManagerPanel extends JDialog {
 
 	private JPanel contentPane;
 	private JTable table;
+	private DefaultTableModel tablemodel;
 	JPanel upperPanel;
 
 	private JTextField excode;
@@ -64,8 +65,14 @@ public class ExamsSchedulerPanel extends JDialog {
 	/**
 	 * Create the frame.
 	 */
-	public ExamsSchedulerPanel() throws ExamsException
+	public ExamsManagerPanel() throws ExamsException
 	{
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				prevWindowQueue.peek().setVisible(true);
+			}
+		});
+		
 		
 		setModal(true);
 		setLocationRelativeTo(null);
@@ -99,6 +106,7 @@ public class ExamsSchedulerPanel extends JDialog {
 		btnReturnToMain.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				prevWindowQueue.peek().setVisible(true);
+				// prevWindowQueue.poll();
 				dispose();
 			}
 		});
@@ -200,6 +208,11 @@ public class ExamsSchedulerPanel extends JDialog {
 		btnNewExam.setBounds(557, 56, 117, 25);
 		
 		JButton btnRemoveExam = new JButton("Remove exam");
+		btnRemoveExam.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				removeExam();
+			}
+		});
 		panel_1.add(btnRemoveExam);
 		btnRemoveExam.setHorizontalAlignment(SwingConstants.RIGHT);
 		upperPanel.setVisible(true);
@@ -261,7 +274,9 @@ public class ExamsSchedulerPanel extends JDialog {
 
 		Object[][] vals2=createTableModel(columnsContent);
 		System.out.println("Size :" + vals2[0][1]);
-		table = new JTable(vals2, columns) {
+		// table = new JTable(vals2, columns) {
+		tablemodel = createTableModelv2(columns, columnsContent);
+		table = new JTable(tablemodel) {
 			@Override
 			public boolean isCellEditable(int row, int col)
 	        { return false; }
@@ -315,6 +330,8 @@ public class ExamsSchedulerPanel extends JDialog {
 		
 		StringBuilder sb = new StringBuilder();
 		String serverResponse = "";
+		int selectedRow=0;
+		
 		sb.append("exam modify ");
 		sb.append(excode.getText());
 		sb.append(" {" + excode.getText() + "|");
@@ -331,11 +348,36 @@ public class ExamsSchedulerPanel extends JDialog {
 		sb.append(exdesc.getText() + "|");
 		sb.append(exscope.getText() + "}");
 		// sb.append(getUid() + "|");
-		System.out.println(sb.toString());
+//		System.out.println(sb.toString());
 		serverResponse = sendAndReceive(sb.toString());
 		if (!serverResponse.equals("OK")) throw new ExamsException(formatErrorNicely(serverResponse));
 		else showMsg("Changes saved on server. @TODO: Autorefresh.");
 		
+		selectedRow=table.getSelectedRow();
+		tablemodel.setValueAt(exname.getText(), selectedRow, 1);
+		// table.setModel(tablemodel);
+		// ((AbstractTableModel) table.getModel()).fireTableDataChanged();
+		// table.repaint();
+		// spTable.repaint();
+				
+	}
+	
+	private void removeExam() throws ExamsException
+	{
+		StringBuilder sb = new StringBuilder();
+		String serverResponse = "";
+		String examName = "";
 		
+		int selectedRow=table.getSelectedRow();
+		if (selectedRow==-1) throw new ExamsException("Please select an exam to remove.");
+		examName = table.getValueAt(table.getSelectedRow(), 1).toString();
+		sb.append("exam remove "+table.getValueAt(table.getSelectedRow(), 0).toString());
+		System.out.println(sb.toString());
+		
+		serverResponse = sendAndReceive(sb.toString());
+		if (!serverResponse.equals("OK")) throw new ExamsException(formatErrorNicely(serverResponse));
+		else showMsg("Exam " + examName + " removed. @TODO: Autorefresh.");
+		tablemodel.removeRow(selectedRow);
+		tablemodel.fireTableDataChanged();
 	}
 }
