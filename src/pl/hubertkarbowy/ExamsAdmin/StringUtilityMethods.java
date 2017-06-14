@@ -36,13 +36,7 @@ final class StringUtilityMethods {
 		
 		temp=tokens.substring(3);
 	    temp=temp.replaceAll("[{}]", "");
-		// StringTokenizer token = new StringTokenizer(temp, delimiter.getDelimiter()); 
-		
-		// howmany=token.countTokens();
-		// System.out.println("There are " + howmany + "tokens");
-		// for (int i = 0; i < howmany; i++) parsed.add(token.nextToken());
 	    parsed=Arrays.stream(temp.split("\\"+delimiter.getDelimiter())).collect(Collectors.toList());
-	    // System.out.println(parsed);
 		return parsed;
 	}
 	
