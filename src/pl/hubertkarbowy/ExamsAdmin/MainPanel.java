@@ -20,7 +20,7 @@ import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.prevWindowQueue;
 
 class MainPanel extends JDialog {
 	JDialog spanel=null;
-
+	JDialog self_w = this;
 	/**
 	 * 
 	 */
@@ -87,7 +87,7 @@ class MainPanel extends JDialog {
 				}
 				if (spanel != null) {
 				prevWindowQueue.peek().setVisible(false);
-				prevWindowQueue.offer(spanel);
+				prevWindowQueue.offer(self_w);
 				spanel.setLocationRelativeTo(null);
 				spanel.setVisible(true);
 				}
@@ -110,7 +110,7 @@ class MainPanel extends JDialog {
 				spanel = new TestbanksManager();
 				if (spanel == null) throw new ExamsException("Hmm...");
 				prevWindowQueue.peek().setVisible(false);
-				prevWindowQueue.offer(spanel);
+				prevWindowQueue.offer(self_w);
 				spanel.setLocationRelativeTo(null);
 				spanel.setVisible(true);
 			}

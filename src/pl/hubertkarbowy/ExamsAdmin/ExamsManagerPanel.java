@@ -106,7 +106,7 @@ public class ExamsManagerPanel extends JDialog {
 		btnReturnToMain.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				prevWindowQueue.peek().setVisible(true);
-				// prevWindowQueue.poll();
+				prevWindowQueue.poll();
 				dispose();
 			}
 		});
