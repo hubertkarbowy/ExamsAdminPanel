@@ -1,8 +1,9 @@
 package pl.hubertkarbowy.ExamsAdmin;
-import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.sendAndReceive;
+import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.*;
 import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.tokenize;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.Delimiter;
@@ -12,7 +13,8 @@ import pl.hubertkarbowy.ExamsAdmin.Testbanks.Testbank;
 
 final class Questions {
 
-	private List<Question> allQuestions = new ArrayList<>();
+	private static List<Question> allQuestions = new ArrayList<>();
+	private static List<List<String>> allQuestionsAsList = new ArrayList<>();
 	
 	protected class Question implements Comparable<Question>{
 		int id;
@@ -77,9 +79,25 @@ final class Questions {
 			return this.id - other.id;
 		}
 		
+		protected List<String> getAsStringList()
+		{
+			List<String> sa = new ArrayList<>();
+			sa.add(Integer.toString(id));
+			sa.add(question);
+			sa.add(opt1);
+			sa.add(opt2);
+			sa.add(opt3);
+			sa.add(opt4);
+			sa.add(opt5);
+			sa.add(correct);
+			sa.add(keywords);
+			sa.add(owner);
+			return sa;
+		}
+		
 	}
 	
-	protected void populate() throws ExamsException
+	protected void populate(String filterString) throws ExamsException
 	{
 		String allQuestionsOfThisUser;
 		List<String> allQuestionsOfThisUserAsList = new ArrayList<>();
@@ -88,11 +106,16 @@ final class Questions {
 		
 		allQuestions.clear();
 		
-		allQuestionsOfThisUser=sendAndReceive("testitem query *");
+		if (filterString==null)	allQuestionsOfThisUser=sendAndReceive("testitem query *");
+		else allQuestionsOfThisUser=sendAndReceive("testitem query " + filterString);
 		if (!allQuestionsOfThisUser.startsWith("ERR=NO_RECORDS_FOUND")) {
 			if (!allQuestionsOfThisUser.startsWith("OK=")) throw new ExamsException("Unable to retrieve the list of your questions.");
 		}
-		else return;
+		else 
+			{
+			allQuestions.add(new Question(-99, "NEW", "opt1", "", "", "", "", "", "", getUid()));
+			return;
+		}
 		
 		allQuestionsOfThisUserAsList=tokenize(allQuestionsOfThisUser, semicolon);
 		for (String singleQuestion : allQuestionsOfThisUserAsList) {
@@ -100,6 +123,16 @@ final class Questions {
 			// System.out.println(singleTestbank + " " + response);
 			if (!response.startsWith("OK=")) throw new ExamsException("Invalid question format.");
 			allQuestions.add(new Question(tokenize(response, pipe)));
+			allQuestionsAsList.add(tokenize(response, pipe));
 		}
+		Collections.sort(allQuestions);
+	}
+	
+	protected static List<List<String>> getAllQuestionsAsList() {
+		allQuestionsAsList.clear();
+		for (Question q : allQuestions) {
+			allQuestionsAsList.add(q.getAsStringList());
+		}
+		return allQuestionsAsList;
 	}
 }

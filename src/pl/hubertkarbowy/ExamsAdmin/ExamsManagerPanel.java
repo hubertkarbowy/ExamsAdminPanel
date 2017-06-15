@@ -292,8 +292,8 @@ public class ExamsManagerPanel extends JDialog {
         });
 		table.getColumnModel().getColumn(0).setPreferredWidth(100);
 		table.getColumnModel().getColumn(1).setPreferredWidth(300);
-		upperPanel.revalidate();
-		upperPanel.repaint();
+		// upperPanel.revalidate();
+		// upperPanel.repaint();
 	}
 	
 	private void refreshInputFields()
