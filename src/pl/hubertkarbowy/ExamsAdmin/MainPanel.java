@@ -121,6 +121,16 @@ class MainPanel extends JDialog {
 		ExaminerMenu.add(btnManageTestbanks);
 		
 		JButton btnUsers = new JButton("User accounts");
+		btnUsers.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				spanel = new UsersPanel();
+				if (spanel == null) throw new ExamsException("Hmm...");
+				prevWindowQueue.peek().setVisible(false);
+				prevWindowQueue.offer(self_w);
+				spanel.setLocationRelativeTo(null);
+				spanel.setVisible(true);
+			}
+		});
 		btnUsers.setIcon(new ImageIcon(MainPanel.class.getResource("/com/sun/java/swing/plaf/windows/icons/DetailsView.gif")));
 		btnUsers.setMnemonic('u');
 		btnUsers.setBounds(22, 275, 269, 53);

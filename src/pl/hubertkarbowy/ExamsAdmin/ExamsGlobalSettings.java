@@ -141,6 +141,29 @@ class ExamsGlobalSettings {
 		return response;
 	}
 	
+	protected static String sendAndReceiveMultiline(String msg) throws ExamsException
+	{	
+		String response = "";
+		StringBuilder sb = new StringBuilder();
+		if (!sock.isConnected()) throw new ExamsException("<html>Error - cannot write to socket!<br>It is <b>highly</b> recommended that you stop doing whatever you are doing and reestablish the connection.</html>");	
+		else sockWrite.println(msg);
+		try {
+			char buf[] = new char[5];
+			int val=0;
+			System.out.println("Reading from socket:");
+			while ((val=sockRead.read())!=1) {
+				if ((char)val=='>') { sockRead.read(); sockRead.read(); break;} // o jak brzyyyydko!
+				System.out.print((char)val);
+				sb.append((char)val);
+			}
+		}
+		catch (IOException e)
+		{
+			throw new ExamsException("Error - cannot read server reply. How strange...");
+		}
+		return sb.toString();
+	}
+	
 	protected static void showMsg(String msg)
 	{
 		JOptionPane.showMessageDialog(frmExamsOnline, msg);

@@ -5,6 +5,9 @@ import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.createTableModelv
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
@@ -199,6 +203,18 @@ final class StringUtilityMethods {
 		
 	}
 	
+	static DefaultListModel<String> createList(String[] items) {
+		
+		
+		
+		DefaultListModel<String> lm = new DefaultListModel<String>() {
+			
+		 
+		};
+		
+		return lm;
+		
+	}
 	
 	static DefaultTableModel parseExamsv3(String[] columns, List<List<String>> columnsContent)
 	{
