@@ -1,5 +1,6 @@
 package pl.hubertkarbowy.ExamsAdmin;
 
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -22,6 +24,9 @@ import java.awt.Dimension;
 import javax.swing.table.DefaultTableModel;
 
 import com.sun.org.apache.xpath.internal.functions.Function;
+import com.sun.xml.internal.ws.policy.EffectiveAlternativeSelector;
+
+import pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.Delimiter;
 
 import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.*;
 import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.*;
@@ -40,6 +45,8 @@ import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
+
 import java.awt.Color;
 import java.beans.PropertyChangeListener;
 import java.time.LocalDate;
@@ -52,10 +59,13 @@ import java.beans.PropertyChangeEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.ListSelectionModel;
+import javax.swing.JTabbedPane;
+import javax.swing.JSplitPane;
+import javax.swing.JList;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
 public class UsersPanel extends JDialog {
-
-	private final JPanel usersTablePanel = new JPanel();
 	private JTable usersTable;
 	private BetterTableModel model_ulist;
 	private JTextField txtUid;
@@ -63,7 +73,7 @@ public class UsersPanel extends JDialog {
 	private JTextField txtFamilyName;
 	private JTextField txtDOB;
 	private JLabel lblHiddenpw;
-	private JComboBox comboRole;
+	private JComboBox<String> comboRole;
 	private JButton btnReset;
 	private JLabel lblAddingANew;
 	private JButton applyButton;
@@ -75,6 +85,30 @@ public class UsersPanel extends JDialog {
 	//List<JComponent> clist = new ArrayList<>();
 
 	private boolean isInNewUserMode = false;
+	private JTabbedPane tabbedPane;
+	private JPanel userspanel;
+	private JSplitPane enrollmentspanel;
+	private JScrollPane scrollPane;
+	private JPanel groupSelector;
+	private JPanel groupEditor;
+	private JScrollPane scrollGroups;
+	private JList<String> listOfGroups;
+	private JScrollPane usersInGroups;
+	private JTable usersTableInGroups;
+	private JScrollPane scrollEnrolled;
+	private JPanel uigBtns;
+	private JButton btnEnroll;
+	private JButton btnUnenroll;
+	private JButton btnNewGroup;
+	private JButton btnRemoveGroup;
+	private JButton btnSaveGroup;
+	private JButton btnExit;
+	private JLabel label;
+	private JList<String> listOfEnrolled;
+	private DefaultListModel<String> listmodel_groups = new DefaultListModel<>();
+	private DefaultListModel<String> listmodel_enrolled = new DefaultListModel<>();
+	
+	
 	/**
 	 * Launch the application.
 	 */
@@ -98,6 +132,7 @@ public class UsersPanel extends JDialog {
 		serverResponse = sendAndReceive("user query *");
 		if (!serverResponse.startsWith("OK")) throw new ExamsException("Cannot retrieve users list!");
 		tokens = tokenize(serverResponse, Delimiter.SEMICOLON);
+		
 		for (String userid : tokens) {
 			serverResponse=sendAndReceive("user get " + userid);
 			if (!serverResponse.startsWith("OK")) throw new ExamsException("Cannot retrieve user data!");
@@ -108,34 +143,36 @@ public class UsersPanel extends JDialog {
 		
 		
 		
+		
 		setBounds(100, 100, 722, 605);
 		setLocationRelativeTo(null);
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-		usersTablePanel.setPreferredSize(new Dimension(10, 300));
-		usersTablePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(usersTablePanel);
-		usersTablePanel.setLayout(new BoxLayout(usersTablePanel, BoxLayout.Y_AXIS));
+		
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setMinimumSize(new Dimension(0, 0));
+		tabbedPane.setPreferredSize(new Dimension(0, 0));
+		getContentPane().add(tabbedPane);
+		
+		userspanel = new JPanel();
+		tabbedPane.addTab("User accounts", null, userspanel, null);
+		userspanel.setLayout(new BoxLayout(userspanel, BoxLayout.Y_AXIS));
 		
 		model_ulist = (BetterTableModel) createTableModelv3(new String[] {"User ID", "First name", "Family name", "DOB", "Pwd", "Role"}, listModel);
-		usersTable = new JTable(model_ulist);
-		usersTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		usersTable.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				refreshInputFields();
-			}
-		});
 		
-		JScrollPane scrollPane = new JScrollPane(usersTable);
-		usersTable.removeColumn(usersTable.getColumn("Pwd"));
-		usersTablePanel.add(scrollPane);
+		usersTable = new JTable(model_ulist);
+		scrollPane = new JScrollPane(usersTable);
+		scrollPane.setAlignmentY(Component.TOP_ALIGNMENT);
+		userspanel.add(scrollPane);
+		
+		
+		// userspanel.add(usersTable);
+		usersTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		for (int row=0; row<usersTable.getRowCount(); row++) {
 			usersTable.setValueAt(toDOB((String)model_ulist.getValueAt(row, 3)), row, 3);
 		}
-		
 			JPanel editPanel = new JPanel();
+			userspanel.add(editPanel);
 			editPanel.setMaximumSize(new Dimension(32767, 350));
-			getContentPane().add(editPanel);
 			GridBagLayout gbl_editPanel = new GridBagLayout();
 			gbl_editPanel.columnWidths = new int[]{10,100};
 			gbl_editPanel.rowHeights = new int[]{30,30,30,30,30,30,30};
@@ -253,11 +290,11 @@ public class UsersPanel extends JDialog {
 			gbc_lblAddingANew.gridx = 1;
 			gbc_lblAddingANew.gridy = 6;
 			editPanel.add(lblAddingANew, gbc_lblAddingANew);
-		
-			JPanel buttonPane = new JPanel();
-			buttonPane.setMaximumSize(new Dimension(32767, 100));
-			buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER));
-			getContentPane().add(buttonPane);
+			
+				JPanel buttonPane = new JPanel();
+				userspanel.add(buttonPane);
+				buttonPane.setMaximumSize(new Dimension(32767, 100));
+				buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER));
 				applyButton = new JButton("Apply changes");
 				applyButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -302,6 +339,124 @@ public class UsersPanel extends JDialog {
 				lblHiddenpw = new JLabel("hiddenPW");
 				lblHiddenpw.setVisible(false);
 				buttonPane.add(lblHiddenpw);
+		usersTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				refreshInputFields();
+			}
+		});
+		usersTable.removeColumn(usersTable.getColumn("Pwd"));
+		
+		// DRUGA POLOWA OKNA
+		
+		enrollmentspanel = new JSplitPane();
+		
+		groupSelector = new JPanel();
+		enrollmentspanel.setLeftComponent(groupSelector);
+		groupSelector.setLayout(new BoxLayout(groupSelector, BoxLayout.X_AXIS));
+		
+		
+		
+		refreshTbEnrolments();
+		listOfGroups = new JList<String>(listmodel_groups);
+		listOfGroups.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent arg0) {
+				refreshEnrolled(listOfGroups.getSelectedValue());
+			}
+		});
+		listOfGroups.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+		scrollGroups = new JScrollPane(listOfGroups);
+		scrollGroups.setMinimumSize(new Dimension(200, 22));
+		groupSelector.add(scrollGroups);
+		
+		groupEditor = new JPanel();
+		enrollmentspanel.setRightComponent(groupEditor);
+		groupEditor.setLayout(new BoxLayout(groupEditor, BoxLayout.Y_AXIS));
+		
+		usersTableInGroups = new JTable(model_ulist);
+		Arrays.asList("DOB", "Pwd", "Role").stream().forEach(x -> usersTableInGroups.removeColumn(usersTableInGroups.getColumn(x)));
+		usersInGroups = new JScrollPane(usersTableInGroups);
+		groupEditor.add(usersInGroups);
+		
+		
+		
+		
+		
+		listOfEnrolled = new JList<String>(listmodel_enrolled);
+		scrollEnrolled = new JScrollPane(listOfEnrolled);
+		scrollEnrolled.setPreferredSize(new Dimension(200, 131));
+		groupEditor.add(scrollEnrolled);
+		
+		
+		
+		uigBtns = new JPanel();
+		uigBtns.setMinimumSize(new Dimension(10, 300));
+		groupEditor.add(uigBtns);
+		uigBtns.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		
+		btnEnroll = new JButton("Enroll user(s)");
+		btnEnroll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int selectedrows[] = usersTableInGroups.getSelectedRows();
+				for (int singlerow : selectedrows) {
+					String singleValue = (String)usersTableInGroups.getValueAt(singlerow, 0);
+					if (!listmodel_enrolled.contains(singleValue)) listmodel_enrolled.addElement(singleValue);
+				}
+			}
+		});
+		btnEnroll.setMnemonic('a');
+		uigBtns.add(btnEnroll);
+		
+		btnUnenroll = new JButton("Unenroll user(s)");
+		btnUnenroll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			try {
+				List<String> toRem = listOfEnrolled.getSelectedValuesList();
+				toRem.stream().forEach(x -> listmodel_enrolled.removeElement(x));
+				}
+				catch (Exception ee) {
+					JOptionPane.showMessageDialog(null, "Error deleting questions.\n" + ee.getMessage());
+				}
+			}
+		});
+		btnUnenroll.setMnemonic('r');
+		uigBtns.add(btnUnenroll);
+		
+		btnNewGroup = new JButton("New group");
+		btnNewGroup.setMnemonic('n');
+		uigBtns.add(btnNewGroup);
+		
+		btnRemoveGroup = new JButton("Remove group");
+		uigBtns.add(btnRemoveGroup);
+		
+		btnSaveGroup = new JButton("Save changes");
+		btnSaveGroup.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				updateEnrollments();
+			}
+		});
+		btnSaveGroup.setMnemonic('s');
+		uigBtns.add(btnSaveGroup);
+		
+		btnExit = new JButton("Exit");
+		btnExit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			dispose();
+			}
+		});
+		btnExit.setMnemonic('x');
+		uigBtns.add(btnExit);
+		
+		label = new JLabel("");
+		label.setForeground(Color.GRAY);
+		uigBtns.add(label);
+		
+		
+		tabbedPane.addTab("Groups and enrolments", null, enrollmentspanel, null);
+		
+		
+		
 			
 		
 	}
@@ -417,11 +572,63 @@ public class UsersPanel extends JDialog {
 		if (!serverResponse.startsWith("OK")) throw new ExamsException("Cannot remove user.");
 		else showMsg("User removed");
 		model_ulist.removeRow(rowid);
-		
-		
-		 
-		
+	}
 	
+	void refreshTbEnrolments()
+	{
+		listmodel_groups.clear();
+		String serverResponse = sendAndReceive("group query *");
+		System.out.println(serverResponse);
+		List<String> tbidAsList = tokenize(serverResponse, Delimiter.SEMICOLON);
+		System.out.println(tbidAsList);
+		for (String tbid : tbidAsList) listmodel_groups.addElement(tbid);
+	}
+	
+	void refreshEnrolled(String whichGroup)
+	{
+		listmodel_enrolled.clear();
+		String serverResponse = sendAndReceive("group getenrolled " + whichGroup);
+		System.out.println(serverResponse);
+		List<String> tbidAsList = tokenize(serverResponse, Delimiter.SEMICOLON);
+		System.out.println(tbidAsList);
+		for (String tbid : tbidAsList) listmodel_enrolled.addElement(tbid);
+	}
+	
+	void updateEnrollments() {
+		List<String> localList = IntStream.rangeClosed(0, listmodel_enrolled.getSize()-1).mapToObj(x -> (String)listmodel_enrolled.getElementAt(x)).collect(Collectors.toList());
+		List<String> serverList = new ArrayList<>();
+		List<String> intersectionList = new ArrayList<>();
+		String intersectionString;
+		String serverResponse = new String();
+		String whichGroup = listOfGroups.getSelectedValue();
+		
+			serverResponse = sendAndReceive("group getenrolled " + whichGroup);
+			if (serverResponse.startsWith("OK")) {
+				intersectionList = tokenize(serverResponse, Delimiter.SEMICOLON);
+				System.out.println(intersectionList);
+				serverList.addAll(intersectionList); // serverlist must be effectively final for lambdas... silly.
+			}
+			
+			System.out.println("Server list: " + serverList);
+			intersectionList = serverList.stream().filter(x -> !localList.contains(x)).collect(Collectors.toList());
+			System.out.println("To delete:" + intersectionList);
+			if (!intersectionList.isEmpty()) {
+				intersectionString = String.join(";", intersectionList);
+				serverResponse = sendAndReceiveMultiline("group unenroll" + whichGroup + " {" + intersectionString + "}");
+				if (!serverResponse.startsWith("OK")) throw new ExamsException("Oops... Something went wrong while deleting records from the server.");
+			}
+			
+			
+			intersectionList=localList.stream().filter(x -> !serverList.contains(x)).collect(Collectors.toList());
+			System.out.println("To add:" + intersectionList);
+			if (!intersectionList.isEmpty()) {
+				intersectionString = String.join(";", intersectionList);
+				System.out.println("group enroll " + whichGroup + " {" + intersectionString + "}");
+				serverResponse = sendAndReceiveMultiline("testbank enroll " + whichGroup + " {" + intersectionString + "}");
+				if (!serverResponse.startsWith("OK")) throw new ExamsException("Oops... Something went wrong while deleting records from the server.");
+			}
+			System.out.println("Looks like a happy end?");
+		
 	}
 	
 	String toDOB(String that) {

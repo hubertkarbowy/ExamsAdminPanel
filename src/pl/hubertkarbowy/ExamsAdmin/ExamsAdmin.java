@@ -92,8 +92,8 @@ public class ExamsAdmin {
 		frmExamsOnline.getContentPane().add(lblExamsServer);
 		
 		txtServer = new JTextField();
-		// txtServer.setText("127.0.0.1");
-		txtServer.setText("192.168.1.7");
+		txtServer.setText("127.0.0.1");
+		// txtServer.setText("192.168.1.7");
 		txtServer.setBounds(149, 65, 114, 19);
 		frmExamsOnline.getContentPane().add(txtServer);
 		txtServer.setColumns(10);

@@ -45,6 +45,7 @@ class MainPanel extends JDialog {
 	 * Create the frame.
 	 */
 	public MainPanel()  {
+		setTitle("Exams - administrator panel");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 624, 430);
 		contentPane = new JPanel();
@@ -120,7 +121,7 @@ class MainPanel extends JDialog {
 		btnManageTestbanks.setBounds(22, 198, 269, 53);
 		ExaminerMenu.add(btnManageTestbanks);
 		
-		JButton btnUsers = new JButton("User accounts");
+		JButton btnUsers = new JButton("User accounts and enrolment");
 		btnUsers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				spanel = new UsersPanel();
