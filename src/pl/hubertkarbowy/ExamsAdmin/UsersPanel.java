@@ -424,6 +424,22 @@ public class UsersPanel extends JDialog {
 		uigBtns.add(btnUnenroll);
 		
 		btnNewGroup = new JButton("New group");
+		btnNewGroup.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showConfirmDialog(null, new ChooseExaminer(), "Group wizard", JOptionPane.CANCEL_OPTION);
+				
+				String grpid = JOptionPane.showInputDialog("Enter new group id (must be unique)");
+				if (grpid==null || grpid.isEmpty()) return;
+				//
+				if (!sendAndReceive("group get '" + grpid + "'").equals("ERR=NOT_FOUND")) throw new ExamsException("A group with this id already exists");
+				String groupname = JOptionPane.showInputDialog("Enter new group name");
+				if (groupname==null || groupname.isEmpty()) return;
+				String srvResp = sendAndReceive("group new {"+grpid+"|"+groupname+"|"+ "}");
+				if (srvResp.startsWith("OK")) showMsg("New group created successfully");
+				else showMsg("Oops - something went wrong while creating a new group");
+				listmodel_groups.addElement(grpid);
+			}
+		});
 		btnNewGroup.setMnemonic('n');
 		uigBtns.add(btnNewGroup);
 		
@@ -588,6 +604,11 @@ public class UsersPanel extends JDialog {
 	{
 		listmodel_enrolled.clear();
 		String serverResponse = sendAndReceive("group getenrolled " + whichGroup);
+		if (serverResponse.equals("ERR=NO_RECORDS_FOUND")) {
+			JOptionPane.showMessageDialog(null, "Editing an empty group");
+			listmodel_enrolled.clear();
+			return;
+		}
 		System.out.println(serverResponse);
 		List<String> tbidAsList = tokenize(serverResponse, Delimiter.SEMICOLON);
 		System.out.println(tbidAsList);
@@ -614,8 +635,10 @@ public class UsersPanel extends JDialog {
 			System.out.println("To delete:" + intersectionList);
 			if (!intersectionList.isEmpty()) {
 				intersectionString = String.join(";", intersectionList);
-				serverResponse = sendAndReceiveMultiline("group unenroll" + whichGroup + " {" + intersectionString + "}");
-				if (!serverResponse.startsWith("OK")) throw new ExamsException("Oops... Something went wrong while deleting records from the server.");
+				System.out.println("group unenroll " + whichGroup + " {" + intersectionString + "}");
+				serverResponse = sendAndReceiveMultiline("group unenroll " + whichGroup + " {" + intersectionString + "}");
+				if (!serverResponse.startsWith("OK")) throw new ExamsException("Oops... Something went wrong while deleting records from server.");
+				else showMsg("Changes saved to server.");
 			}
 			
 			
@@ -624,8 +647,9 @@ public class UsersPanel extends JDialog {
 			if (!intersectionList.isEmpty()) {
 				intersectionString = String.join(";", intersectionList);
 				System.out.println("group enroll " + whichGroup + " {" + intersectionString + "}");
-				serverResponse = sendAndReceiveMultiline("testbank enroll " + whichGroup + " {" + intersectionString + "}");
-				if (!serverResponse.startsWith("OK")) throw new ExamsException("Oops... Something went wrong while deleting records from the server.");
+				serverResponse = sendAndReceiveMultiline("group enroll " + whichGroup + " {" + intersectionString + "}");
+				if (!serverResponse.startsWith("OK")) throw new ExamsException("Oops... Something went wrong while adding records to server.");
+				else showMsg("Changes saved to server.");
 			}
 			System.out.println("Looks like a happy end?");
 		

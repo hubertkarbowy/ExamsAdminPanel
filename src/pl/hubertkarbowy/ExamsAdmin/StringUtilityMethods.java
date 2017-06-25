@@ -2,6 +2,7 @@ package pl.hubertkarbowy.ExamsAdmin;
 
 import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.createTableModel;
 import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.createTableModelv2;
+import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.*;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -10,7 +11,9 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -227,4 +230,38 @@ final class StringUtilityMethods {
 		return serverResponse;
 	}
 	
+	static Map<String, String> getHash(String firstquery, String secondquery, int valueField1, int valueField2, Delimiter firstDelimiter, Delimiter secondDelimiter, int conditionField, String conditionEquals)
+	{
+		Map<String, String> map = new HashMap<>();
+		String firstresp = sendAndReceive(firstquery);
+		System.out.println(firstresp);
+		if (!firstresp.startsWith("OK")) throw new ExamsException("Query error (key)");
+		Arrays.stream(firstresp.substring(4, firstresp.length()-1).split(firstDelimiter.getDelimiter())).forEach(x-> {
+			System.out.println(secondquery + x);
+			map.put(x, "");
+		});
+		
+		for (String k : map.keySet()) {
+			System.out.println("k="+k);
+		String secondresp = sendAndReceive(secondquery + k);
+		System.out.println(secondresp);
+		if (!secondresp.startsWith("OK")) throw new ExamsException("Query error (value)");
+		String valuesTable[] = secondresp.substring(4,secondresp.length()-1).split("\\|");
+		String condi = valuesTable[conditionField];
+		String s1 = valuesTable[valueField1];
+		String s2;
+		if (valueField2!=-1) s2=valuesTable[valueField2]; else s2=""; 
+		if (conditionEquals != null) {
+			System.out.println("s =" + s1 + s2);
+			System.out.println("Condi =" + condi + " CondEq="+conditionEquals);
+			if (condi.equals(conditionEquals)) {
+				if (valueField2==-1) map.put(k, s1); 
+				else map.put(k, s1+" "+s2);
+			}
+		}
+		else map.put(k, s1);
+		}
+		map.entrySet().removeIf(entry -> entry.getValue().equals(""));
+		return map;
+	}
 }

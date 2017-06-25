@@ -215,6 +215,7 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		btnAddQuestion = new JButton("Add questions");
 		btnAddQuestion.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (listOfTbids.isSelectionEmpty()) {showMsg("Please select a testbank first"); return;}
 				int selectedrows[] = table_questionsshort.getSelectedRows();
 				for (int singlerow : selectedrows) {
 					String singleValue = (String)table_questionsshort.getValueAt(singlerow, 0);
