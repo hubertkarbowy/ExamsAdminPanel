@@ -24,9 +24,9 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-final class StringUtilityMethods {
+public final class StringUtilityMethods {
 		
-	protected static enum Delimiter {
+	public static enum Delimiter {
 	PIPE("|"), SEMICOLON(";"), TUPLE_PIPEANDSEMICOLON("");
 	
 	String delim;
@@ -43,7 +43,7 @@ final class StringUtilityMethods {
 	 * @param  delimiter an enum indicating the type of delimiter used: PIPE, SEMICOLON or TUPLE_PIPESEMICOLON
 	 * @return      the parsed ArrayList
 	 */
-	static List<String> tokenize (String tokens, Delimiter delimiter) {
+	public static List<String> tokenize (String tokens, Delimiter delimiter) {
 		String temp;
 		int howmany;
 		List<String> parsed = new ArrayList<>();

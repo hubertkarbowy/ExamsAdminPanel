@@ -3,18 +3,24 @@ package pl.hubertkarbowy.ExamsAdmin;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static pl.hubertkarbowy.ExamsAdmin.ExamsAdmin.*;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
-class ExamsGlobalSettings {
+public class ExamsGlobalSettings {
 	
 	protected static final int PORTNO=55110;
 	private static String uid;
+	private static String rights;
 	private static char[] pw = null;
+	public static List<String> enrolled = new ArrayList<>();
 	
 	private static InetAddress serverAddr;
 	private static Socket sock;
@@ -22,7 +28,7 @@ class ExamsGlobalSettings {
 	private static PrintWriter sockWrite;
 	
 	protected static JDialog prevWindow = null;
-	protected static Queue<JDialog> prevWindowQueue = new ArrayDeque<>();
+	public static Queue<JDialog> prevWindowQueue = new ArrayDeque<>();
 	
 	private static final ExamsGlobalSettings instance = new ExamsGlobalSettings();
 	
@@ -107,6 +113,11 @@ class ExamsGlobalSettings {
 			if (sockRead.read() != '>') throw new ExamsException("Protocol error second >");
 			if (sockRead.read() != ' ') throw new ExamsException("Protocol error second space");
 			System.out.print(authInput);
+			sockWrite.println("user get " + uid);
+			authInput = sockRead.readLine();
+			if (authInput.contains("\\|examiner")) rights = "examiner";
+			else if (authInput.contains("\\|admin")) rights = "admin";
+			else rights = "student";
 		}
 		catch (UnknownHostException e)
 		{
@@ -125,7 +136,7 @@ class ExamsGlobalSettings {
 			serverAddr=InetAddress.getByName(ipAddr);
 	}
 	
-	protected static String sendAndReceive(String msg) throws ExamsException
+	public static String sendAndReceive(String msg) throws ExamsException
 	{	
 		String response = "";
 		if (!sock.isConnected()) throw new ExamsException("<html>Error - cannot write to socket!<br>It is <b>highly</b> recommended that you stop doing whatever you are doing and reestablish the connection.</html>");	
