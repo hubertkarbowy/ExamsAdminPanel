@@ -704,6 +704,7 @@ public class TestbanksManager extends JDialog implements ActionListener {
 	{
 		listmodel_tbids.clear();
 		String serverResponse = sendAndReceive("testbank query *");
+		if (serverResponse.startsWith("ERR")) return;
 		System.out.println(serverResponse);
 		List<String> tbidAsList = tokenize(serverResponse, semicolon);
 		System.out.println(tbidAsList);

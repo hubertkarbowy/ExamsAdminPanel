@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -42,6 +43,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.DefaultComboBoxModel;
@@ -66,6 +68,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 public class UsersPanel extends JDialog {
+	
 	private JTable usersTable;
 	private BetterTableModel model_ulist;
 	private JTextField txtUid;
@@ -107,6 +110,11 @@ public class UsersPanel extends JDialog {
 	private JList<String> listOfEnrolled;
 	private DefaultListModel<String> listmodel_groups = new DefaultListModel<>();
 	private DefaultListModel<String> listmodel_enrolled = new DefaultListModel<>();
+	
+	protected String newGroupName;
+	protected String newGroupId;
+	protected String newGroupExaminer;
+	protected UsersPanel thisinstance = this;
 	
 	
 	/**
@@ -426,24 +434,35 @@ public class UsersPanel extends JDialog {
 		btnNewGroup = new JButton("New group");
 		btnNewGroup.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showConfirmDialog(null, new ChooseExaminer(), "Group wizard", JOptionPane.CANCEL_OPTION);
-				
-				String grpid = JOptionPane.showInputDialog("Enter new group id (must be unique)");
-				if (grpid==null || grpid.isEmpty()) return;
-				//
-				if (!sendAndReceive("group get '" + grpid + "'").equals("ERR=NOT_FOUND")) throw new ExamsException("A group with this id already exists");
-				String groupname = JOptionPane.showInputDialog("Enter new group name");
-				if (groupname==null || groupname.isEmpty()) return;
-				String srvResp = sendAndReceive("group new {"+grpid+"|"+groupname+"|"+ "}");
+				int resp=JOptionPane.showConfirmDialog(null, new ChooseExaminer(thisinstance), "Group wizard", JOptionPane.CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				if (resp !=0) return;
+			//	showMsg("New group ID: " + newGroupId + "\nNew name: " + newGroupName + "\nNew examiner: " + newGroupExaminer + "\nResponse: " +resp);
+				if (newGroupId==null || newGroupId.isEmpty()) throw new ExamsException("New group ID must not be empty.");
+				if (!sendAndReceive("group get '" + newGroupId + "'").equals("ERR=NOT_FOUND")) throw new ExamsException("A group with this id already exists");
+				if (newGroupName==null || newGroupName.isEmpty()) throw new ExamsException("New group name must not be empty.");;
+				String srvResp = sendAndReceive("group new {"+newGroupId+"|"+newGroupName+"|"+newGroupExaminer+ "}");
 				if (srvResp.startsWith("OK")) showMsg("New group created successfully");
-				else showMsg("Oops - something went wrong while creating a new group");
-				listmodel_groups.addElement(grpid);
+				else showMsg("Oops - something went wrong while creating a new group:\n " + "group new {"+newGroupId+"|"+newGroupName+"|"+newGroupExaminer+ "}\n" + srvResp);
+				listmodel_groups.addElement(newGroupId);
 			}
 		});
 		btnNewGroup.setMnemonic('n');
 		uigBtns.add(btnNewGroup);
 		
 		btnRemoveGroup = new JButton("Remove group");
+		btnRemoveGroup.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (listOfGroups.isSelectionEmpty()) {showMsg("Select a group to delete."); return;}
+				String query = "group remove "+listOfGroups.getSelectedValue();
+				String srvResp = sendAndReceive(query);
+				if (!srvResp.startsWith("OK")) showMsg("Oops - something went wrong while removing a group. Are you sure there are no users / exams associated with it?:\n " + "group remove "+listOfGroups.getSelectedValue() + "\n" + srvResp);
+				else {
+					showMsg("Group removed from server");
+					listmodel_groups.removeElement(listOfGroups.getSelectedValue());
+				}
+				
+			}
+		});
 		uigBtns.add(btnRemoveGroup);
 		
 		btnSaveGroup = new JButton("Save changes");

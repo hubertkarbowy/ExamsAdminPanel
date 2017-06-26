@@ -224,7 +224,7 @@ public class ExamsManagerPanel extends JDialog {
 	private void populateEntries()
 	{
 		allExamCodes=sendAndReceive("exam query *");
-		if (!allExamCodes.startsWith("ERR=NO_RECORDS_FOUND")) {
+		if (!allExamCodes.startsWith("ERR=NO_RECORDS")) {
 			if (!allExamCodes.startsWith("OK=")) throw new ExamsException("Unable to retrieve the list of your exams.");
 			allExamCodesAsList=tokenize(allExamCodes, semicolon);
 			tableContent.clear();
@@ -255,7 +255,12 @@ public class ExamsManagerPanel extends JDialog {
 		else
 		{
 			Object[][] emptyTable= new Object[1][1];
-			table = new JTable(emptyTable, new String[]{"Exam code", "Exam name"}   ){
+		/*	emptyTable[0][0] = new Object();
+			emptyTable[0][1] = new Object();
+			emptyTable[1][0] = new Object();
+			emptyTable[1][1] = new Object(); */
+			
+			table = new JTable(new Object[][] {{"", ""}, {"", ""}}, new String[]{"Exam code", "Exam name"}   ){
 				@Override
 				public boolean isCellEditable(int row, int col)
 		        { return false; }
