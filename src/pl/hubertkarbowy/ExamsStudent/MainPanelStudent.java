@@ -25,13 +25,14 @@ public class MainPanelStudent extends JDialog {
 	private JLabel lblWelcomeToThe;
 	private JLabel lblHereAreThe;
 	private JComboBox comboBox;
-	private JButton btnNewButton;
+	private JButton btnTakeButton;
 	private List<String> myGroups = new ArrayList<>();
 	private List<List<String>> scheduleList = new ArrayList<>(); 
 	String servResp;
 	private JLabel lblInvcode;
 	private StudentTestScreen sts;
 	private MainPanelStudent mps = this;
+	private JButton btnCheckResults;
 
 
 	/**
@@ -58,8 +59,9 @@ public class MainPanelStudent extends JDialog {
 		comboBox.setBounds(40, 104, 469, 24);
 		contentPanel.add(comboBox);
 		
-		btnNewButton = new JButton("Open this exam");
-		btnNewButton.addActionListener(new ActionListener() {
+		btnTakeButton = new JButton("Take this exam");
+		btnTakeButton.setMnemonic('t');
+		btnTakeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String excode="";
 				for (List<String> l : scheduleList)
@@ -79,13 +81,18 @@ public class MainPanelStudent extends JDialog {
 				
 			}
 		});
-		btnNewButton.setBounds(563, 104, 156, 25);
-		contentPanel.add(btnNewButton);
+		btnTakeButton.setBounds(563, 104, 156, 25);
+		contentPanel.add(btnTakeButton);
 		
 		lblInvcode = new JLabel("invCode");
 		lblInvcode.setVisible(false);
 		lblInvcode.setBounds(642, 12, 70, 15);
 		contentPanel.add(lblInvcode);
+		
+		btnCheckResults = new JButton("Check results");
+		btnCheckResults.setMnemonic('r');
+		btnCheckResults.setBounds(563, 141, 156, 25);
+		contentPanel.add(btnCheckResults);
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));

@@ -40,12 +40,12 @@ public class ExamsStudent extends JDialog {
 	 */
 	public static void main(String[] args) {
 		try {
-		//	Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-		 //       @Override
-		//        public void uncaughtException(Thread t, Throwable e) {
-		//        	JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
-		//        }
-		//    });
+			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+		        @Override
+		        public void uncaughtException(Thread t, Throwable e) {
+		        	JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+		        }
+		    });
 			ExamsStudent dialog = new ExamsStudent();
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
@@ -132,6 +132,11 @@ public class ExamsStudent extends JDialog {
 			
 			
 				JButton button1 = new JButton("Quit");
+				button1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						System.exit(0);
+					}
+				});
 				buttonPane.add(button1);
 				button1.setMnemonic('q');
 			

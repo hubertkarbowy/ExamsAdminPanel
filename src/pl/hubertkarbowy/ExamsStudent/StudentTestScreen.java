@@ -15,6 +15,8 @@ import javax.swing.border.EmptyBorder;
 import static pl.hubertkarbowy.ExamsStudent.ExamsGlobalSettings.*;
 import static pl.hubertkarbowy.ExamsStudent.StringUtilityMethods.*;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Dimension;
 import javax.swing.JTextArea;
 import javax.swing.BoxLayout;
@@ -26,6 +28,8 @@ import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JRadioButton;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 public class StudentTestScreen extends JDialog {
 
@@ -44,6 +48,7 @@ public class StudentTestScreen extends JDialog {
 	private JRadioButton ansD;
 	private JRadioButton ansE;
 	private JLabel qid;
+	private String examCode;
 	
 	
 
@@ -54,13 +59,14 @@ public class StudentTestScreen extends JDialog {
 		getContentPane().add(contentPanel);
 		contentPanel.setLayout(null);
 		
+		this.examCode = examcode;
 		questionCounter = new JLabel("1");
 		questionCounter.setBounds(743, 12, 70, 15);
 		contentPanel.add(questionCounter);
 		
 		questionsList=sendReceiveAndDeserialize("exam take "+examcode);
 		questionCounter.setText(""+currentQ+" / "+questionsList.size());
-		for (List<String> item : questionsList) answers.put(item.get(0), "X");
+		for (List<String> item : questionsList) answers.put(item.get(0), "0");
 		
 		questionContent = new JTextArea();
 		questionContent.setFont(new Font("Dialog", Font.BOLD, 16));
@@ -79,6 +85,11 @@ public class StudentTestScreen extends JDialog {
 		buttonPane.setLayout(null);
 		
 			JButton okButton = new JButton("Submit");
+			okButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (JOptionPane.showConfirmDialog(null, "Are you sure you want to submit this exam?", "Confirm", JOptionPane.YES_NO_OPTION)==0) submitExam();
+				}
+			});
 			okButton.setBounds(651, 5, 83, 25);
 			okButton.setActionCommand("OK");
 			buttonPane.add(okButton);
@@ -121,23 +132,48 @@ public class StudentTestScreen extends JDialog {
 			
 			ansGrp = new ButtonGroup();
 			ansA = new JRadioButton("AnswerA");
+			ansA.addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					if (ansA.isSelected()) answers.put(qid.getText(), "1");
+				}
+			});
 			ansA.setBounds(44, 162, 750, 47);
 			contentPanel.add(ansA);
 			
 			
 			ansB = new JRadioButton("AnswerB");
+			ansB.addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					if (ansB.isSelected()) answers.put(qid.getText(), "2");
+				}
+			});
 			ansB.setBounds(44, 201, 750, 47);
 			contentPanel.add(ansB);
 			
 			ansC = new JRadioButton("AnswerC");
+			ansC.addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					if (ansC.isSelected()) answers.put(qid.getText(), "3");
+				}
+			});
 			ansC.setBounds(44, 241, 750, 47);
 			contentPanel.add(ansC);
 			
 			ansD = new JRadioButton("AnswerD");
+			ansD.addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					if (ansD.isSelected()) answers.put(qid.getText(), "4");
+				}
+			});
 			ansD.setBounds(44, 281, 750, 47);
 			contentPanel.add(ansD);
 			
 			ansE = new JRadioButton("AnswerE");
+			ansE.addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					if (ansD.isSelected()) answers.put(qid.getText(), "5");
+				}
+			});
 			ansE.setBounds(44, 321, 750, 47);
 			contentPanel.add(ansE);
 			
@@ -170,9 +206,30 @@ public class StudentTestScreen extends JDialog {
 		qid.setText(qToDisp.get(0));
 		// jesli nie ma w mapie to 
 		  ansGrp.clearSelection();
-		// w pp
-		  // ustaw na to, co w mapie
+		
+		 if (answers.get(qid.getText()).equals("1")) ansA.setSelected(true);
+		 else if (answers.get(qid.getText()).equals("2")) ansB.setSelected(true);
+		 else if (answers.get(qid.getText()).equals("3")) ansC.setSelected(true);
+		 else if (answers.get(qid.getText()).equals("4")) ansD.setSelected(true);
+		 else if (answers.get(qid.getText()).equals("5")) ansE.setSelected(true);
+		 
+		 
 		
 		//ustaw tez niewidzialna etykiete z QID z bazy -DONE
+	}
+	
+	private void submitExam() {
+		String servResp;
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("exam submit " + examCode + " {");
+		answers.forEach( (k,v) -> sb.append(k+";"+v+"|"));
+		sb.deleteCharAt(sb.length()-1); // remove final pipe
+		sb.append("}");
+		System.out.println(sb.toString());
+		servResp=sendAndReceive(sb.toString());
+		if (servResp.startsWith("OK")) showMsg("Successfully submitted the exam");
+		else showMsg("Error submitting the exam: "+servResp);
+		
 	}
 }

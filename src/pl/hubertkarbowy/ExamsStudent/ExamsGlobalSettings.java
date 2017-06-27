@@ -187,7 +187,16 @@ public class ExamsGlobalSettings {
 			char buf[] = new char[5];
 			int val=0;
 			System.out.println("Reading from socket:");
-			sockRead.mark(3);
+			sockRead.mark(10);
+			sockRead.read(buf, 0, 3);
+			if (buf[0]=='E' && buf[1]=='R' && buf[2]=='R') {
+				sockRead.reset();
+				response = sockRead.readLine();
+				sockRead.read(); sockRead.read(); sockRead.read();
+				throw new ExamsException(response);
+			}
+			sockRead.reset();
+			sockRead.mark(10);
 			while ((val=sockRead.read())!=1) {
 				if ((char)val=='>') { sockRead.read(); sockRead.read(); break;} // o jak brzyyyydko!
 				else {
