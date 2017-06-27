@@ -12,7 +12,12 @@ import java.awt.Font;
 import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.awt.event.ActionEvent;
+
+import static pl.hubertkarbowy.ExamsStudent.ExamsGlobalSettings.*;
+import static pl.hubertkarbowy.ExamsStudent.StringUtilityMethods.*;
 
 public class MainPanelStudent extends JDialog {
 
@@ -21,6 +26,12 @@ public class MainPanelStudent extends JDialog {
 	private JLabel lblHereAreThe;
 	private JComboBox comboBox;
 	private JButton btnNewButton;
+	private List<String> myGroups = new ArrayList<>();
+	private List<List<String>> scheduleList = new ArrayList<>(); 
+	String servResp;
+	private JLabel lblInvcode;
+	private StudentTestScreen sts;
+	private MainPanelStudent mps = this;
 
 
 	/**
@@ -48,8 +59,33 @@ public class MainPanelStudent extends JDialog {
 		contentPanel.add(comboBox);
 		
 		btnNewButton = new JButton("Open this exam");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String excode="";
+				for (List<String> l : scheduleList)
+				{
+					if (l.get(6).equals((String)comboBox.getSelectedItem())) {
+						excode = l.get(1);
+						break;
+					}
+				}
+				if (!excode.equals("")) {
+					sts = new StudentTestScreen(excode);
+					sts.setLocationRelativeTo(null);
+					prevWindowQueue.add(mps);
+					mps.setVisible(false);
+					sts.setVisible(true);
+				}
+				
+			}
+		});
 		btnNewButton.setBounds(563, 104, 156, 25);
 		contentPanel.add(btnNewButton);
+		
+		lblInvcode = new JLabel("invCode");
+		lblInvcode.setVisible(false);
+		lblInvcode.setBounds(642, 12, 70, 15);
+		contentPanel.add(lblInvcode);
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -66,5 +102,18 @@ public class MainPanelStudent extends JDialog {
 				buttonPane.add(cancelButton);
 			}
 		}
+		servResp = sendAndReceive("user mygroups");
+		if (servResp.startsWith("ERR=")) showMsg("There are no scheduled exams for you.");
+		else {
+			myGroups = tokenize(servResp, Delimiter.SEMICOLON);
+			System.out.println(myGroups);
+			for (String g : myGroups) {
+				scheduleList.addAll(sendReceiveAndDeserialize("exam getschedulebygroup "+g));	
+			}
+			for (List<String> l : scheduleList) comboBox.addItem(l.get(6));
+		}
+		System.out.println("SL = " + scheduleList);
+		
+		
 	}
 }

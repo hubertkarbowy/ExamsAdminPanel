@@ -1,4 +1,4 @@
-package pl.hubertkarbowy.ExamsAdmin;
+package pl.hubertkarbowy.ExamsStudent;
 
 import java.io.*;
 import java.net.*;
@@ -9,10 +9,10 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static pl.hubertkarbowy.ExamsAdmin.ExamsAdmin.*;
-
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+
+import static pl.hubertkarbowy.ExamsStudent.StringUtilityMethods.*;
 
 public class ExamsGlobalSettings {
 	
@@ -47,7 +47,7 @@ public class ExamsGlobalSettings {
 		}
 		catch (Exception e)
 		{
-			JOptionPane.showMessageDialog(frmExamsOnline, "Error " + e.getMessage());
+			JOptionPane.showMessageDialog(null, "Error " + e.getMessage());
 			return null;
 		}
 		
@@ -176,9 +176,46 @@ public class ExamsGlobalSettings {
 		return sb.toString();
 	}
 	
+	protected static List<List<String>> sendReceiveAndDeserialize(String msg) throws ExamsException
+	{	
+		String response = "";
+		StringBuilder sb = new StringBuilder();
+		List<List<String>> localList = new ArrayList<>();
+		if (!sock.isConnected()) throw new ExamsException("<html>Error - cannot write to socket!<br>It is <b>highly</b> recommended that you stop doing whatever you are doing and reestablish the connection.</html>");	
+		else sockWrite.println(msg);
+		try {
+			char buf[] = new char[5];
+			int val=0;
+			System.out.println("Reading from socket:");
+			sockRead.mark(3);
+			while ((val=sockRead.read())!=1) {
+				if ((char)val=='>') { sockRead.read(); sockRead.read(); break;} // o jak brzyyyydko!
+				else {
+					sockRead.reset();
+					response = sockRead.readLine();
+					if (response.startsWith("#$#$")) {sockRead.mark(3); continue;}
+					localList.add(tokenize(response, Delimiter.PIPE, 0));
+					
+				//	sb.append(response);
+					// sb.append((char)val);
+					System.out.println(response);
+					sockRead.mark(3);
+				}
+				
+				
+			}
+		}
+		catch (IOException e)
+		{
+			throw new ExamsException("Error - cannot read server reply. How strange...");
+		}
+		// return sb.toString();
+		return localList;
+	}
+	
 	protected static void showMsg(String msg)
 	{
-		JOptionPane.showMessageDialog(frmExamsOnline, msg);
+		JOptionPane.showMessageDialog(null, msg);
 	}
 	
 	protected static String getUid()

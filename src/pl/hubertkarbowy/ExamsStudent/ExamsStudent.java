@@ -1,7 +1,7 @@
 package pl.hubertkarbowy.ExamsStudent;
 
-import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.*;
-import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.*;
+import static pl.hubertkarbowy.ExamsStudent.ExamsGlobalSettings.*;
+import static pl.hubertkarbowy.ExamsStudent.StringUtilityMethods.*;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings;
+import pl.hubertkarbowy.ExamsStudent.ExamsGlobalSettings;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -40,12 +40,12 @@ public class ExamsStudent extends JDialog {
 	 */
 	public static void main(String[] args) {
 		try {
-			Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-		        @Override
-		        public void uncaughtException(Thread t, Throwable e) {
-		        	JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
-		        }
-		    });
+		//	Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+		 //       @Override
+		//        public void uncaughtException(Thread t, Throwable e) {
+		//        	JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+		//        }
+		//    });
 			ExamsStudent dialog = new ExamsStudent();
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
@@ -116,8 +116,8 @@ public class ExamsStudent extends JDialog {
 					public void actionPerformed(ActionEvent e) {
 						gs=getMutableInstance(txtUserId.getText(), pwdBaz.getPassword(), txtServer.getText());
 						if (gs==null) return;
-						String servResp = sendAndReceive("user mygroups");
-						enrolled = tokenize(servResp, Delimiter.SEMICOLON);
+						// String servResp = sendAndReceive("user mygroups");
+						// enrolled = tokenize(servResp, Delimiter.SEMICOLON);
 						
 						mainPanel = new MainPanelStudent();
 						mainPanel.setLocationRelativeTo(null);
