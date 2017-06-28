@@ -72,7 +72,7 @@ public class MainPanelStudent extends JDialog {
 					}
 				}
 				if (!excode.equals("")) {
-					sts = new StudentTestScreen(excode);
+					sts = new StudentTestScreen(excode, "take");
 					sts.setLocationRelativeTo(null);
 					prevWindowQueue.add(mps);
 					mps.setVisible(false);
@@ -90,6 +90,25 @@ public class MainPanelStudent extends JDialog {
 		contentPanel.add(lblInvcode);
 		
 		btnCheckResults = new JButton("Check results");
+		btnCheckResults.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String excode="";
+				for (List<String> l : scheduleList)
+				{
+					if (l.get(6).equals((String)comboBox.getSelectedItem())) {
+						excode = l.get(1);
+						break;
+					}
+				}
+				if (!excode.equals("")) {
+					sts = new StudentTestScreen(excode, "view");
+					sts.setLocationRelativeTo(null);
+					prevWindowQueue.add(mps);
+					mps.setVisible(false);
+					sts.setVisible(true);
+				}
+			}
+		});
 		btnCheckResults.setMnemonic('r');
 		btnCheckResults.setBounds(563, 141, 156, 25);
 		contentPanel.add(btnCheckResults);

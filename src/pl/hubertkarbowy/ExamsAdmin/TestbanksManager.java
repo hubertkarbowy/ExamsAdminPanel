@@ -35,6 +35,8 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
 
+import javafx.scene.control.RadioButton;
+
 
 public class TestbanksManager extends JDialog implements ActionListener {
 	private JPanel panel;
@@ -117,6 +119,9 @@ public class TestbanksManager extends JDialog implements ActionListener {
 	private DefaultListModel<String> listmodel_tbids;
 	private JButton btnRemoveTestbank;
 	private JLabel lblTbid;
+	private JLabel label;
+	private JLabel label_1;
+	private JTextField txtTodowyrezana;
 	
 	
 	
@@ -351,7 +356,7 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		clist.add(txtKwords);
 		
 		lblKeywordsl = new JLabel("Keywords:");
-		lblKeywordsl.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblKeywordsl.setHorizontalAlignment(SwingConstants.LEFT);
 		
 		btnRemoveThisQuestion = new JButton("Remove question");
 		btnRemoveThisQuestion.addActionListener(new ActionListener() {
@@ -368,9 +373,9 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		lblSelmode.setForeground(Color.RED);
 		GridBagLayout gbl_datafields_pane = new GridBagLayout();
 		gbl_datafields_pane.columnWidths = new int[] {100, 10, 0};
-		gbl_datafields_pane.rowHeights = new int[] {30, 30, 30, 30, 30, 30, 30};
-		gbl_datafields_pane.columnWeights = new double[]{0.01, 0.01, 0.85};
-		gbl_datafields_pane.rowWeights = new double[]{0.03, 0.03, 0.03, 0.03, 0.03, 0};
+		gbl_datafields_pane.rowHeights = new int[] {30, 30, 30, 30, 30, 30, 30, 30};
+		gbl_datafields_pane.columnWeights = new double[]{0.01, 0.01, 1.0};
+		gbl_datafields_pane.rowWeights = new double[]{0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0};
 		datafields_pane.setLayout(gbl_datafields_pane);
 		
 		
@@ -383,7 +388,7 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		
 		GridBagConstraints gbc_txtQid  = new GridBagConstraints();
 		gbc_txtQid.fill = GridBagConstraints.BOTH;
-		gbc_txtQid.insets = new Insets(0, 0, 5, 5);
+		gbc_txtQid.insets = new Insets(0, 0, 5, 0);
 		gbc_txtQid.gridwidth=2;
 		gbc_txtQid.gridx = 1;
 		gbc_txtQid.gridy = 0;
@@ -402,7 +407,7 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		
 		GridBagConstraints gbc_qtxt  = new GridBagConstraints();
 		gbc_qtxt.fill = GridBagConstraints.BOTH;
-		gbc_qtxt.insets = new Insets(0, 0, 5, 5);
+		gbc_qtxt.insets = new Insets(0, 0, 5, 0);
 		gbc_qtxt.gridwidth = 2;
 		gbc_qtxt.gridx = 1;
 		gbc_qtxt.gridy = 1;
@@ -549,7 +554,7 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		
 			GridBagConstraints gbc_lblOption_5 = new GridBagConstraints();
 			gbc_lblOption_5.fill = GridBagConstraints.BOTH;
-			gbc_lblOption_5.insets = new Insets(0, 0, 0, 5);
+			gbc_lblOption_5.insets = new Insets(0, 0, 5, 5);
 			gbc_lblOption_5.gridx = 0;
 			gbc_lblOption_5.gridy = 6;
 			datafields_pane.add(lblOption_5, gbc_lblOption_5);
@@ -559,7 +564,7 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		clist.add(opt5);
 		GridBagConstraints gbc_opt5 = new GridBagConstraints();
 		gbc_opt5.fill = GridBagConstraints.BOTH;
-		gbc_opt5.insets = new Insets(0, 0, 0, 5);
+		gbc_opt5.insets = new Insets(0, 0, 5, 5);
 		gbc_opt5.gridx = 1;
 		gbc_opt5.gridy = 6;
 		datafields_pane.add(opt5, gbc_opt5);
@@ -568,10 +573,58 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		txtOpt5.setColumns(10);
 		clist.add(txtOpt5);
 		GridBagConstraints gbc_txtOpt5 = new GridBagConstraints();
+		gbc_txtOpt5.insets = new Insets(0, 0, 5, 0);
 		gbc_txtOpt5.fill = GridBagConstraints.BOTH;
 		gbc_txtOpt5.gridx = 2;
 		gbc_txtOpt5.gridy = 6;
 		datafields_pane.add(txtOpt5, gbc_txtOpt5);
+		
+		
+		GridBagConstraints gbc_label = new GridBagConstraints();
+		gbc_label.insets = new Insets(0, 0, 0, 5);
+		gbc_label.gridx = 0;
+		gbc_label.gridy = 7;
+		datafields_pane.add(lblKeywordsl, gbc_label);
+		
+		label_1 = new JLabel("-");
+		GridBagConstraints gbc_label_1 = new GridBagConstraints();
+		gbc_label_1.anchor = GridBagConstraints.EAST;
+		gbc_label_1.insets = new Insets(0, 0, 0, 5);
+		gbc_label_1.gridx = 1;
+		gbc_label_1.gridy = 7;
+		datafields_pane.add(label_1, gbc_label_1);
+		
+		GridBagConstraints gbc_txtTodowyrezana = new GridBagConstraints();
+		gbc_txtTodowyrezana.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtTodowyrezana.gridx = 2;
+		gbc_txtTodowyrezana.gridy = 7;
+		datafields_pane.add(txtKwords, gbc_txtTodowyrezana);
+		
+		
+/*		GridBagConstraints gbc_labKWords = new GridBagConstraints();
+		gbc_labKWords.fill = GridBagConstraints.BOTH;
+		gbc_labKWords.insets = new Insets(0, 0, 0, 5);
+		gbc_labKWords.gridx = 2;
+		gbc_labKWords.gridy = 6;
+		datafields_pane.add(lblKeywordsl, gbc_labKWords);
+		
+		GridBagConstraints gbc_labDummy = new GridBagConstraints();
+		gbc_labDummy.fill = GridBagConstraints.BOTH;
+		gbc_labDummy.insets = new Insets(0, 0, 0, 5);
+		gbc_labDummy.gridx = 2;
+		gbc_labDummy.gridy = 6;
+		datafields_pane.add(new JLabel(" "), gbc_labDummy);
+		
+		
+		
+		GridBagConstraints gbc_txtKWords = new GridBagConstraints();
+		gbc_txtKWords.fill = GridBagConstraints.BOTH;
+		gbc_txtKWords.insets = new Insets(0, 0, 0, 5);
+		gbc_txtKWords.gridx = 2;
+		gbc_txtKWords.gridy = 6;
+		datafields_pane.add(txtKwords, gbc_txtKWords); */
+		
+		
 		
 
 		
