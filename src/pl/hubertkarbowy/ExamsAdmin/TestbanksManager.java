@@ -35,7 +35,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
 
-import javafx.scene.control.RadioButton;
+
 
 
 public class TestbanksManager extends JDialog implements ActionListener {

@@ -33,7 +33,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.JRadioButton;
 import javax.swing.event.ChangeListener;
 
-import javafx.scene.control.RadioButton;
 
 import javax.swing.event.ChangeEvent;
 
