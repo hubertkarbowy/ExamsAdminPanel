@@ -1,24 +1,23 @@
 package pl.hubertkarbowy.ExamsAdmin;
 
-import java.util.*;
-import java.util.List;
-
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.JScrollPane;
-import javax.swing.table.*;
-
-import pl.hubertkarbowy.ExamsAdmin.Testbanks.Testbank;
-
-import java.awt.*;
-import java.awt.Dialog.*;
-import java.awt.event.*;
-
 import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.*;
 import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.*;
 
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.event.*;
+import java.util.*;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+
+import pl.hubertkarbowy.ExamsAdmin.Testbanks.Testbank;
 
 
+/**
+ * Adding and deleting exams
+ *
+ */
 public class ExamsManagerPanel extends JDialog {
 
 	private JPanel contentPane;
@@ -44,27 +43,11 @@ public class ExamsManagerPanel extends JDialog {
 	Delimiter semicolon = Delimiter.SEMICOLON;
 	Delimiter pipe = Delimiter.PIPE;
 	private JComboBox<String> testbankSelector;
-	/**
-	 * Launch the application.
-	 */
-	/*public static void main(String[] args) { // tylko do obslugi "lokalnej"
-				try {
-					ExamsSchedulerPanel frame = new ExamsSchedulerPanel();
-					frame.addWindowListener(new WindowAdapter() {
-							@Override
-							public void windowClosed(WindowEvent e) {
-								prevWindowQueue.poll();
-							}
-						});
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-	}*/
-
-	/**
-	 * Create the frame.
-	 */
+	
+	
+	
+	
+	
 	public ExamsManagerPanel() throws ExamsException
 	{
 		addWindowListener(new WindowAdapter() {
@@ -72,8 +55,7 @@ public class ExamsManagerPanel extends JDialog {
 				prevWindowQueue.peek().setVisible(true);
 			}
 		});
-		
-		
+			
 		setModal(true);
 		setLocationRelativeTo(null);
 		setTitle("My exams");
@@ -221,10 +203,13 @@ public class ExamsManagerPanel extends JDialog {
 		upperPanel.repaint();
 	}
 	
+	/**
+	 * Fills out the GUI fields
+	 */
 	private void populateEntries()
 	{
 		allExamCodes=sendAndReceive("exam query *");
-		if (!allExamCodes.startsWith("ERR=NO_RECORDS")) {
+		if (!allExamCodes.startsWith("ERR")) {
 			if (!allExamCodes.startsWith("OK=")) throw new ExamsException("Unable to retrieve the list of your exams.");
 			allExamCodesAsList=tokenize(allExamCodes, semicolon);
 			tableContent.clear();
@@ -254,12 +239,7 @@ public class ExamsManagerPanel extends JDialog {
 		}
 		else
 		{
-			Object[][] emptyTable= new Object[1][1];
-		/*	emptyTable[0][0] = new Object();
-			emptyTable[0][1] = new Object();
-			emptyTable[1][0] = new Object();
-			emptyTable[1][1] = new Object(); */
-			
+			Object[][] emptyTable= new Object[1][1];	
 			table = new JTable(new Object[][] {{"", ""}, {"", ""}}, new String[]{"Exam code", "Exam name"}   ){
 				@Override
 				public boolean isCellEditable(int row, int col)
@@ -269,6 +249,11 @@ public class ExamsManagerPanel extends JDialog {
 		}
 	}
 	
+	/**
+	 * Parses list of exams into a table model
+	 * @param columns
+	 * @param columnsContent
+	 */
 	private void parseExamsv2(String[] columns, List<List<String>> columnsContent)
 	{
 		for (List<String> singleList : columnsContent) // what an ugly and unsafe hack!
@@ -301,6 +286,9 @@ public class ExamsManagerPanel extends JDialog {
 		// upperPanel.repaint();
 	}
 	
+	/**
+	 * Refreshes GUI fields
+	 */
 	private void refreshInputFields()
 	{
 		String selectedExamCode = (String) table.getValueAt(table.getSelectedRow(), 0);
@@ -329,6 +317,10 @@ public class ExamsManagerPanel extends JDialog {
 		}
 	}
 	
+	/**
+	 * Puts changes to server
+	 * @throws ExamsException
+	 */
 	private void applyChanges() throws ExamsException
 	{
 		if (excode.getText().equals("")) throw new ExamsException("No exam selected");
@@ -367,6 +359,10 @@ public class ExamsManagerPanel extends JDialog {
 				
 	}
 	
+	/**
+	 * Removes the selected exam from the server
+	 * @throws ExamsException
+	 */
 	private void removeExam() throws ExamsException
 	{
 		StringBuilder sb = new StringBuilder();

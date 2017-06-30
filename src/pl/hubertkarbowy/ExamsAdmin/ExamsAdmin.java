@@ -1,30 +1,25 @@
 package pl.hubertkarbowy.ExamsAdmin;
 
-// import java.awt.EventQueue;
-// komentarz dodany 
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import java.awt.Font;
-import javax.swing.JTextField;
-import javax.swing.JPasswordField;
-import javax.swing.JButton;
-import javax.swing.JDialog;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.getMutableInstance;
-import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.prevWindowQueue;
+import java.awt.event.*;
+import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.*;
 
+/**
+ * Entry point for the Administrator's panel.
+ *
+ */
 public class ExamsAdmin {
 
+	/**
+	 * Login window
+	 */
 	protected static JFrame frmExamsOnline;
+	/**
+	 * Singleton (although mutable) containing session information.
+	 * Contains session information, socket access along some assorted utility methods for parsing and tokenizing server responses. 
+	 */
 	protected static ExamsGlobalSettings gs;
 	private JLabel lblExamsServer;
 	private JTextField txtServer;

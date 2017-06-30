@@ -1,45 +1,32 @@
 package pl.hubertkarbowy.ExamsAdmin;
 
 import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.*;
+import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.*;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.LayoutManager;
-
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.awt.*;
+import java.util.*;
+import javax.swing.Timer;
 import java.util.List;
+import java.awt.event.*;
+
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 
-// import pl.hubertkarbowy.ExamsAdmin.Questions;
-import pl.hubertkarbowy.ExamsAdmin.Questions.Question;
-import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.*;
-import pl.hubertkarbowy.ExamsAdmin.Testbanks.Testbank;
-import java.awt.Dimension;
-import java.awt.Color;
-import java.awt.GridLayout;
-import javax.swing.GroupLayout.Alignment;
-import java.awt.ComponentOrientation;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
 
 
 
-
+/**
+ * UI for editing testbanks and questions
+ * Probably the heaviest class in this project
+ *
+ */
 public class TestbanksManager extends JDialog implements ActionListener {
-	private JPanel panel;
 	private JTextField txtQid;
 	private JTextField qtext;
 	private JTextField txtOpt1;
@@ -49,7 +36,6 @@ public class TestbanksManager extends JDialog implements ActionListener {
 	private JLabel lblFilter;
 	private String filterContent_questions = "";
 	private String filterContent_testbanks = "";
-	private JLabel lblOption_1;
 	private JRadioButton opt2;
 	private JTextField txtOpt2;
 	private JTextField txtOpt3;
@@ -73,7 +59,6 @@ public class TestbanksManager extends JDialog implements ActionListener {
 	
 	private JTable table_questions;
 	private Questions allQuestions;
-	private List<Question> allQuestionsAsList = new ArrayList<>();
 	private List<List<String>> tableContent = new ArrayList<>();
 	private DefaultTableModel tablemodel_questions;
 	
@@ -84,7 +69,6 @@ public class TestbanksManager extends JDialog implements ActionListener {
 	private JRadioButton opt1;
 	
 	private boolean isInNewQuestionMode=false;
-	private boolean isInNewTestbankMode=false;
 	private JLabel lblSelmode;
 	private String setOpt;
 	private JButton btnNewQuestion;
@@ -119,11 +103,7 @@ public class TestbanksManager extends JDialog implements ActionListener {
 	private DefaultListModel<String> listmodel_tbids;
 	private JButton btnRemoveTestbank;
 	private JLabel lblTbid;
-	private JLabel label;
 	private JLabel label_1;
-	private JTextField txtTodowyrezana;
-	
-	
 	
 	/**
 	 * Create the dialog.
@@ -142,7 +122,6 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		setBounds(100, 100, 940, 637);
 		setLocationRelativeTo(null);
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-		
 		listmodel = new DefaultListModel<>();
 		listmodel_tbids = new DefaultListModel<>();
 		
@@ -600,35 +579,7 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		gbc_txtTodowyrezana.gridy = 7;
 		datafields_pane.add(txtKwords, gbc_txtTodowyrezana);
 		
-		
-/*		GridBagConstraints gbc_labKWords = new GridBagConstraints();
-		gbc_labKWords.fill = GridBagConstraints.BOTH;
-		gbc_labKWords.insets = new Insets(0, 0, 0, 5);
-		gbc_labKWords.gridx = 2;
-		gbc_labKWords.gridy = 6;
-		datafields_pane.add(lblKeywordsl, gbc_labKWords);
-		
-		GridBagConstraints gbc_labDummy = new GridBagConstraints();
-		gbc_labDummy.fill = GridBagConstraints.BOTH;
-		gbc_labDummy.insets = new Insets(0, 0, 0, 5);
-		gbc_labDummy.gridx = 2;
-		gbc_labDummy.gridy = 6;
-		datafields_pane.add(new JLabel(" "), gbc_labDummy);
-		
-		
-		
-		GridBagConstraints gbc_txtKWords = new GridBagConstraints();
-		gbc_txtKWords.fill = GridBagConstraints.BOTH;
-		gbc_txtKWords.insets = new Insets(0, 0, 0, 5);
-		gbc_txtKWords.gridx = 2;
-		gbc_txtKWords.gridy = 6;
-		datafields_pane.add(txtKwords, gbc_txtKWords); */
-		
-		
-		
-
-		
-		
+				
 		bottom_pane = new JPanel();
 		QBankTab.add(bottom_pane);
 		bottom_pane.setLayout(new BoxLayout(bottom_pane, BoxLayout.Y_AXIS));
@@ -670,10 +621,6 @@ public class TestbanksManager extends JDialog implements ActionListener {
 					lblSelmode.setVisible(true);
 					btnNewQuestion.setText("Abort changes");
 					clist.stream().forEach(clearTextFields);
-					/* for (Component c : clist) {
-						if (c instanceof JTextField) ((JTextField) c).setText("");
-						if (c instanceof JRadioButton) ((JRadioButton) c).setSelected(false);
-					}*/
 					buttonGroup.clearSelection();
 					
 				}
@@ -682,10 +629,6 @@ public class TestbanksManager extends JDialog implements ActionListener {
 					table_questions.setEnabled(true);
 					lblSelmode.setVisible(false);
 					btnNewQuestion.setText("New question");
-					/* for (Component c : clist) {
-						if (c instanceof JTextField) ((JTextField) c).setText("");
-						if (c instanceof JRadioButton) ((JRadioButton) c).setSelected(false);
-					}*/
 					clist.stream().forEach(clearTextFields);
 					buttonGroup.clearSelection();
 				}
@@ -721,6 +664,11 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		else return;
 	}
 	
+	/**
+	 * Fills out the questions table
+	 * @param columnNames
+	 * @param delimiter
+	 */
 	@SuppressWarnings("static-access")
 	void initFillQuestionsTable(String[] columnNames, Delimiter delimiter)
 	{
@@ -732,13 +680,12 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		table_questions = new JTable(tablemodel_questions);
 		table_questions.removeColumn(table_questions.getColumnModel().getColumn(9)); // usuniecie id wlasciciela
 		table_questionsshort.setModel(tablemodel_questions);
-
-//		table.getColumnModel().getColumn(0).setPreferredWidth(100);
-	//	table.getColumnModel().getColumn(1).setPreferredWidth(300);
-		
-		
 	}
 	
+	/**
+	 * Creates a short version of the table with questions
+	 * Just the question ID and the question content
+	 */
 	void createShortTable()
 	{
 		table_questionsshort.getColumnModel().removeColumn(table_questionsshort.getColumnModel().getColumn(2)); // usuwanie z widoku - nie z modelu
@@ -753,6 +700,9 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		refreshTbIds();
 	}
 	
+	/**
+	 * Gets all testbanks and puts them into the list model
+	 */
 	void refreshTbIds()
 	{
 		listmodel_tbids.clear();
@@ -764,6 +714,9 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		for (String tbid : tbidAsList) listmodel_tbids.addElement(tbid);
 	}
 	
+	/**
+	 * Refreshes input fields
+	 */
 	void refreshInputFields()
 	{
 		int currentRow = table_questions.getSelectedRow();
@@ -791,6 +744,9 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		txtKwords.setText(selectedRow.get(8));
 	}
 	
+	/**
+	 * Modifies a test item and refreshes the model 
+	 */
 	void refreshTableViewAndModelAndSubmit()
 	{
 		if (table_questions.getSelectedRow()<0) throw new ExamsException("Please select a question to edit.");
@@ -834,6 +790,9 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		tablemodel_questions.setValueAt(txtKwords.getText(), row, 8);
 	}
 	
+	/**
+	 * Puts a new test item on the server and in the model
+	 */
 	void addNewItemAndSubmit()
 	{
 		if (qtext.getText().equals("")) throw new ExamsException("Question text cannot be empty.");
@@ -878,6 +837,9 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		
 	}
 	
+	/**
+	 * Removes a test item from the server and from the model
+	 */
 	void removeFromDBAndModel()
 	{
 		if (table_questions.getSelectedRow()<0) throw new ExamsException("Please select a question to remove.");
@@ -897,6 +859,9 @@ public class TestbanksManager extends JDialog implements ActionListener {
 	    }
 	}
 	
+	/**
+	 * Cycles between testbanks
+	 */
 	void switchToADifferentTestbank() {
 		String serverResponse = sendAndReceive("testbank get " + listOfTbids.getSelectedValue());
 		if (!serverResponse.startsWith("OK")) throw new ExamsException("Failed to get testbank data from server.");
@@ -904,7 +869,7 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		lblTbid.setText(tbInfo.get(1));
 		
 		serverResponse = sendAndReceive("testbank getitems " + listOfTbids.getSelectedValue());
-		if (serverResponse.equals("ERR=NO_RECORDS_FOUND")) {
+		if (serverResponse.startsWith("ERR")) {
 			JOptionPane.showMessageDialog(null, "Editing an empty testbank");
 			listmodel.clear();
 			return;
@@ -917,6 +882,9 @@ public class TestbanksManager extends JDialog implements ActionListener {
 		tbInfo.stream().forEach(x -> listmodel.addElement(x));
 	}
 	
+	/**
+	 * Adds and removes testitems from the testbank
+	 */
 	void updateTestbank() {
 		List<String> localList = IntStream.rangeClosed(0, listmodel.getSize()-1).mapToObj(x -> (String)listmodel.getElementAt(x)).collect(Collectors.toList());
 		List<String> serverList = new ArrayList<>();

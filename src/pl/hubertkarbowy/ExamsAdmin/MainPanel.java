@@ -1,49 +1,26 @@
 package pl.hubertkarbowy.ExamsAdmin;
 
-import java.awt.BorderLayout;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import java.awt.CardLayout;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingConstants;
-import java.awt.Font;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.ImageIcon;
-
+import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.getRights;
 import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.prevWindowQueue;
 
+import java.awt.CardLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
+/**
+ * Main window of the Examiner / Administrator Panel 
+ *
+ */
 class MainPanel extends JDialog {
 	JDialog spanel=null;
 	JDialog self_w = this;
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 
-	/**
-	 * Launch the application.
-	 */
-/*	public static void main(String[] args) { // to jest tylko dla wywolania testowego
-		try {
-			MainPanel frame = new MainPanel();
-			prevWindowQueue.offer((JDialog) frame);
-			frame.setLocationRelativeTo(null);
-			frame.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}*/
-
-	/**
-	 * Create the frame.
-	 */
 	public MainPanel()  {
 		setTitle("Exams - administrator panel");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -74,8 +51,6 @@ class MainPanel extends JDialog {
 		ExaminerMenu.add(btnQuit);
 		
 		JButton btnManageExams = new JButton("Create or edit exams");
-		// JPanel spanel - zdefiniowany na gorze
-		
 		
 		btnManageExams.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -124,6 +99,8 @@ class MainPanel extends JDialog {
 		JButton btnUsers = new JButton("User accounts and enrolment");
 		btnUsers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				System.out.println("rights="+getRights());
+				if (!getRights().equals("admin")) throw new ExamsException("Only administrators can edit users and groups");
 				spanel = new UsersPanel();
 				if (spanel == null) throw new ExamsException("Hmm...");
 				prevWindowQueue.peek().setVisible(false);
@@ -138,6 +115,15 @@ class MainPanel extends JDialog {
 		ExaminerMenu.add(btnUsers);
 		
 		JButton btnScheduleExams = new JButton("Schedule exams for groups");
+		btnScheduleExams.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				spanel = new ExamScheduler();
+				prevWindowQueue.peek().setVisible(false);
+				prevWindowQueue.offer(self_w);
+				spanel.setLocationRelativeTo(null);
+				spanel.setVisible(true);
+			}
+		});
 		btnScheduleExams.setMnemonic('s');
 		btnScheduleExams.setBounds(319, 49, 269, 53);
 		ExaminerMenu.add(btnScheduleExams);

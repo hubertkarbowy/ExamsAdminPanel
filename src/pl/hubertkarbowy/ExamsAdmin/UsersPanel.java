@@ -1,72 +1,28 @@
 package pl.hubertkarbowy.ExamsAdmin;
 
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.*;
+import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.*;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JScrollPane;
-import java.awt.Component;
-import javax.swing.JTable;
-import javax.swing.BoxLayout;
-import java.awt.Dimension;
-import javax.swing.table.DefaultTableModel;
-
-import com.sun.org.apache.xpath.internal.functions.Function;
-import com.sun.xml.internal.ws.policy.EffectiveAlternativeSelector;
-
-import pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.Delimiter;
-
-import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.*;
-import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.GridBagLayout;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import javax.swing.SwingConstants;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
-
-import java.awt.Color;
-import java.beans.PropertyChangeListener;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.beans.PropertyChangeEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.ListSelectionModel;
-import javax.swing.JTabbedPane;
-import javax.swing.JSplitPane;
-import javax.swing.JList;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
+/**
+ * Edit users and groups
+ *
+ */
 public class UsersPanel extends JDialog {
 	
 	private JTable usersTable;
@@ -83,10 +39,6 @@ public class UsersPanel extends JDialog {
 	private JButton btnNewUser;
 	private JButton btnRemoveuser;
 	private JButton cancelButton;
-	
-	
-	//List<JComponent> clist = new ArrayList<>();
-
 	private boolean isInNewUserMode = false;
 	private JTabbedPane tabbedPane;
 	private JPanel userspanel;
@@ -116,14 +68,6 @@ public class UsersPanel extends JDialog {
 	protected String newGroupExaminer;
 	protected UsersPanel thisinstance = this;
 	
-	
-	/**
-	 * Launch the application.
-	 */
-	
-	/**
-	 * Create the dialog.
-	 */
 	public UsersPanel() {
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -496,6 +440,9 @@ public class UsersPanel extends JDialog {
 		
 	}
 	
+	/**
+	 * Refreshes UI fields
+	 */
 	void refreshInputFields() {
 	//	long unixtimestamp = Long.parseLong((String)((BetterTableModel)model_ulist).getValueAt(usersTable.getSelectedRow(), 3));
 	//	LocalDateTime ldt = LocalDateTime.ofEpochSecond(unixtimestamp, 0, ZoneOffset.UTC);
@@ -508,6 +455,9 @@ public class UsersPanel extends JDialog {
 		comboRole.setSelectedItem((String)model_ulist.getValueAt(usersTable.getSelectedRow(), 5));
 	}
 	
+	/**
+	 * Creates a new account and puts it on a server
+	 */
 	void newUser() {
 		
 		if (!isInNewUserMode) {
@@ -541,6 +491,9 @@ public class UsersPanel extends JDialog {
 		}
 	}
 	
+	/**
+	 * Updates a user account
+	 */
 	void updateUser() {
 		
 		String serverResponse = "";
@@ -600,15 +553,20 @@ public class UsersPanel extends JDialog {
 		}
 	}
 	
+	/**
+	 * Removes selected user
+	 * @param rowid table row number containing user id in the zeroeth column 
+	 */
 	void removeUser(int rowid) {
-		
-		
 		String serverResponse = sendAndReceive("user remove " + txtUid.getText());
 		if (!serverResponse.startsWith("OK")) throw new ExamsException("Cannot remove user.");
 		else showMsg("User removed");
 		model_ulist.removeRow(rowid);
 	}
 	
+	/**
+	 * Fetches list of groups from the server and updates the model
+	 */
 	void refreshTbEnrolments()
 	{
 		listmodel_groups.clear();
@@ -619,6 +577,10 @@ public class UsersPanel extends JDialog {
 		for (String tbid : tbidAsList) listmodel_groups.addElement(tbid);
 	}
 	
+	/**
+	 * Fetches list of enrolled students 
+	 * @param whichGroup id of the group
+	 */
 	void refreshEnrolled(String whichGroup)
 	{
 		listmodel_enrolled.clear();
@@ -634,6 +596,9 @@ public class UsersPanel extends JDialog {
 		for (String tbid : tbidAsList) listmodel_enrolled.addElement(tbid);
 	}
 	
+	/**
+	 * Enrolls and unenrolls students for / from a selected group
+	 */
 	void updateEnrollments() {
 		List<String> localList = IntStream.rangeClosed(0, listmodel_enrolled.getSize()-1).mapToObj(x -> (String)listmodel_enrolled.getElementAt(x)).collect(Collectors.toList());
 		List<String> serverList = new ArrayList<>();
@@ -674,6 +639,11 @@ public class UsersPanel extends JDialog {
 		
 	}
 	
+	/**
+	 * Unix timestamp to DD-MM-YYYY
+	 * @param unix timestamp as string
+	 * @return date in DD-MM-YYYY format as string
+	 */
 	String toDOB(String that) {
 			long unixtimestamp = Long.parseLong(that);
 			LocalDateTime ldt = LocalDateTime.ofEpochSecond(unixtimestamp, 0, ZoneOffset.UTC);						

@@ -5,10 +5,23 @@ import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.*;
 
 import java.util.*;
 
+/**
+ * A utility class that holds all testbanks fetched from the server as a private list.
+ * Individual testbanks are stored as instances of an internal class {@link Testbank}.
+ */
 final class Testbanks {
 
+	/**
+	 * Stores individual testbanks. Access is via getter methods {@link #getTestbanks()}
+	 * and {@link #getAsMap()}
+	 */
 	private List<Testbank> allTestbanks = new ArrayList<>();
 	
+	
+	/**
+	 * Nested class whose instances represent single testbanks.
+	 *
+	 */
 	protected class Testbank implements Comparable<Testbank>{
 		String id;
 		String name;
@@ -44,6 +57,10 @@ final class Testbanks {
 		
 	}
 	
+	/**
+	 * Populates the private list field {@link allTestbanks} by querying the server and running the parser / tokenizer combo.
+	 * @throws ExamsException
+	 */
 	protected void populate() throws ExamsException
 	{
 		String allTestbankCodes;
@@ -54,10 +71,10 @@ final class Testbanks {
 		allTestbanks.clear();
 		
 		allTestbankCodes=sendAndReceive("testbank query *");
-		if (!allTestbankCodes.startsWith("ERR=NO_RECORDS_FOUND")) {
-			if (!allTestbankCodes.startsWith("OK=")) throw new ExamsException("Unable to retrieve the list of your testbanks.");
+		if (allTestbankCodes.startsWith("ERR")) {
+			// if (!allTestbankCodes.startsWith("OK=")) throw new ExamsException("Unable to retrieve the list of your testbanks.");
+			allTestbankCodes="OK={}";
 		}
-		else return;
 		
 		allTestbankCodesAsList=tokenize(allTestbankCodes, semicolon);
 		for (String singleTestbank : allTestbankCodesAsList) {
@@ -68,6 +85,10 @@ final class Testbanks {
 		}
 	}
 	
+	/**
+	 * Gets a list of testbanks as map
+	 * @return List of testbanks as map
+	 */
 	protected final Map<String, List<String>> getAsMap() {
 		Map<String, List<String>> map = new HashMap<>();
 		for (Testbank t: allTestbanks)
@@ -82,6 +103,10 @@ final class Testbanks {
 		
 	}
 	
+	/**
+	 * Gets a list of testbanks as List.
+	 * @return
+	 */
 	protected final List<Testbank> getTestbanks() {
 		return allTestbanks;
 	}

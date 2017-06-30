@@ -1,14 +1,7 @@
 package pl.hubertkarbowy.ExamsAdmin;
 
-import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.createTableModel;
-import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.createTableModelv2;
-import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.*;
+import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.sendAndReceive;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,15 +12,20 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
+/**
+ * Utility class containing static methods for parsing and processing server responses 
+ *
+ */
 public final class StringUtilityMethods {
 		
+	/**
+	 * Delimiter used in server responses (pipe or semicolon)
+	 *
+	 */
 	public static enum Delimiter {
-	PIPE("|"), SEMICOLON(";"), TUPLE_PIPEANDSEMICOLON("");
+	PIPE("|"), SEMICOLON(";");
 	
 	String delim;
 	
@@ -43,17 +41,33 @@ public final class StringUtilityMethods {
 	 * @param  delimiter an enum indicating the type of delimiter used: PIPE, SEMICOLON or TUPLE_PIPESEMICOLON
 	 * @return      the parsed ArrayList
 	 */
-	public static List<String> tokenize (String tokens, Delimiter delimiter) {
+	public static List<String> tokenize (String tokens, Delimiter delimiter, int... cutNFirstTokens) {
 		String temp;
 		int howmany;
 		List<String> parsed = new ArrayList<>();
+		String[] decoded;
 		
-		temp=tokens.substring(3);
+		if (cutNFirstTokens.length>0) temp=tokens.substring(cutNFirstTokens[0]);
+		else temp=tokens.substring(3);
 	    temp=temp.replaceAll("[{}]", "");
-	    parsed=Arrays.stream(temp.split("\\"+delimiter.getDelimiter())).collect(Collectors.toList());
+	    parsed=Arrays.stream(temp.split("\\"+delimiter.getDelimiter(), -1)).collect(Collectors.toList());
+	    // parsed=Arrays.asList(temp.split("\\"+delimiter.getDelimiter()));
+	    // decoded = temp.split("\\"+delimiter.getDelimiter(), -1);
+	    // for (String zz : decoded) {
+//	    	if (zz.equals("")) parsed.add("");
+	//    	else parsed.add(zz);
+	  //  }
+	    // System.out.println("tabl" + temp + " lista" + parsed);
 		return parsed;
 	}
 	
+	/**
+	 * Produces input for table models
+	 * @param tokens server response in the form OK={value1|value2|...|valueN}
+	 * @param columns column headers
+	 * @param delimiter pipe or semicolon
+	 * @return
+	 */
 	static Object[][] parseVals (String tokens, String[] columns, Delimiter delimiter) {
 		String temp;
 		Object[][] vals2;

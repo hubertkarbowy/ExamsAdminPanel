@@ -1,74 +1,42 @@
 package pl.hubertkarbowy.ExamsAdmin;
 
-import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.prevWindowQueue;
-import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.sendAndReceive;
-import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.showMsg;
+import static pl.hubertkarbowy.ExamsAdmin.ExamsGlobalSettings.*;
 import static pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.formatErrorNicely;
-
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import java.awt.Dialog.ModalExclusionType;
-import javax.swing.JTextArea;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.LineBorder;
-
-import pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.Delimiter;
 import pl.hubertkarbowy.ExamsAdmin.Testbanks.Testbank;
 
-import java.awt.Color;
-import javax.swing.JScrollBar;
+import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.awt.event.ActionEvent;
-import java.awt.Window.Type;
-import java.awt.Dialog.ModalityType;
-import javax.swing.JComboBox;
+import java.awt.event.*;
+import java.util.*;
 
+
+/** * This class is used to show a window which allows the user to add a new exam. Private fields mostly correspond to UI items and are self-explanatory.
+ */
 public class AddNewExam extends JDialog {
-
+ 
 	private JPanel contentPane;
 	private JTextField exname;
 	private JTextField coursename;
 	private JScrollPane spDesc;
-	private JComboBox testbankSelector;
+	private JComboBox<String> testbankSelector;
 	private JTextArea examdesc;
 	private JTextArea examscope;
 	
-	private String allExamCodes;
-	private List<String> allExamCodesAsList = new ArrayList<>();
-	private List<List<String>> completeContent = new ArrayList<>();
 	private Testbanks allTestbanks;
+	/**
+	 * List of {@link pl.hubertkarbowy.ExamsAdmin.Testbanks} 
+	 */
 	private List<Testbank> allTestbanksAsList = new ArrayList<>();
-	
-	private Delimiter semicolon = Delimiter.SEMICOLON;
-	private Delimiter pipe = Delimiter.PIPE;
 	private JTextField excode;
 
 	/**
-	 * Create the frame.
+	 * Lays out the GUI
 	 */
 	public AddNewExam() {
-		/* addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosed(WindowEvent e) {
-				prevWindowQueue.peek().setVisible(true);;
-			}
-		});*/
 		setModal(true);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setTitle("New exam");
@@ -140,7 +108,7 @@ public class AddNewExam extends JDialog {
 		spScope.setBounds(171, 204, 503, 56);
 		panel.add(spScope);
 		
-		testbankSelector = new JComboBox();
+		testbankSelector = new JComboBox<String>();
 		testbankSelector.setBounds(171, 85, 503, 19);
 		panel.add(testbankSelector);
 		
@@ -188,6 +156,9 @@ public class AddNewExam extends JDialog {
 		contentPane.add(btnCancel);
 	}
 	
+	/**
+	 *  Puts the new exam on the server 
+	 */
 	private void dbAddNewExam()
 	{
 		String serverResponse = "";

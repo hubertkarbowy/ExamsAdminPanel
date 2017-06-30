@@ -1,31 +1,21 @@
 package pl.hubertkarbowy.ExamsAdmin;
 
-import javax.swing.JOptionPane;
+import pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.Delimiter;
 import javax.swing.JPanel;
-
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JTextPane;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-
-import pl.hubertkarbowy.ExamsAdmin.StringUtilityMethods.Delimiter;
-
-import javax.swing.JButton;
+import javax.swing.*;
 import java.awt.Dimension;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.Dialog.ModalExclusionType;
-import java.awt.Dialog.ModalityType;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
+/**
+ * Dialog to choose the examiner
+ * Queries the server for a list of examiners.
+ *
+ */
 public class ChooseExaminer extends JPanel {
 	private JComboBox<String> comboBox;
 	private JTextPane txtpnNewgrpid;
@@ -33,16 +23,25 @@ public class ChooseExaminer extends JPanel {
 	private JLabel lblGroupIdunique;
 	private JLabel lblGroupName;
 	private JLabel lblExaminer;
+	/**
+	 * Contains information about examiners.
+	 * Keys = examiner IDs
+	 * Values = their names
+	 */
 	private Map<String, String> examiners;
+	/**
+	 * Instance of the class that creates new ChooseExaminer objects
+	 */
 	private UsersPanel superPanel;
 	
+	/**
+	 * Creates the GUI
+	 * @param panel instance of the class that creates new ChooseExaminer objects
+	 * Used to automatically update / refresh tables in the calling class.
+	 */
 	public ChooseExaminer(UsersPanel panel) {
-		//setModal(true);
-		//setModalityType(ModalityType.APPLICATION_MODAL);
-		//setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		setMinimumSize(new Dimension(500, 250));
 		setPreferredSize(new Dimension(500, 127));
-		//getContentPane().setLayout(null);
 		superPanel=panel;
 		
 		examiners = StringUtilityMethods.getHash("user query *", "user get ", 1, 2, Delimiter.SEMICOLON, Delimiter.PIPE, 5, "examiner");
@@ -50,10 +49,11 @@ public class ChooseExaminer extends JPanel {
 		System.out.println(examiners.toString());
 		comboBox = new JComboBox<String>();
 		comboBox.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
 			public void propertyChange(PropertyChangeEvent arg0) {
 				String retid;
 				for (Entry<String,String> tuple : examiners.entrySet()) {
-					if (tuple.getValue().equals((String)comboBox.getSelectedItem())) {
+					if (tuple.getValue().equals(comboBox.getSelectedItem())) {
 						superPanel.newGroupExaminer = tuple.getKey();
 						break;
 					}
@@ -67,6 +67,7 @@ public class ChooseExaminer extends JPanel {
 		
 		txtpnNewgrpid = new JTextPane();
 		txtpnNewgrpid.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				superPanel.newGroupId = txtpnNewgrpid.getText();
 			}
@@ -82,6 +83,7 @@ public class ChooseExaminer extends JPanel {
 		
 		txtpnNewGrpName = new JTextPane();
 		txtpnNewGrpName.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				superPanel.newGroupName = txtpnNewGrpName.getText();
 			}
